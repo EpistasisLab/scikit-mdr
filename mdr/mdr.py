@@ -19,6 +19,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import pandas as pd
 import numpy as np 
+from collections import defaultdict
 from __future__ import print_function
 from ._version import __version__
 
@@ -43,7 +44,7 @@ class MDR(object):
         """
         self.tie_break = tie_break
         self.default_label = default_label
-        self.feature_map = {} 
+        self.class_ratio = 0 
 
     def fit(self, features, classes):
         """Constructs the MDR feature map from the provided training data
@@ -60,16 +61,13 @@ class MDR(object):
         None
 
         """
-        n = (np.unique(classes)).size # general case 
-        for i in range(features.shape[0]):
-            feature_instance = tuple(map(tuple, features[i])) 
-            if feature_instance not in dict: 
-                feature_map[feature_instance] = np.zeros((n,), dtype=np.int) #initialize count for a new set of feature values 
-            #assuming there are only 2 unique label values - might have to change to generalize
-            if classes[i] = 0:
-                feature_map[feature_instance][0] += 1
-            else:
-                feature_map[feature_instance][1] += 1
+        self.class_ratio = float(sum(classes == 0))/(classes.size) #only applies to binary classification 
+        num_classes = (np.unique(classes)).size # count all the unique values of classes 
+        self.feature_map = defaultdict(lambda: np.zeros((num_classes,), dtype=np.int))
+
+        for row_i in range(features.shape[0]):
+            feature_instance = tuple(map(tuple, features[row_i])) #convert feature vector to tuple 
+            feature_map[feature_instance][classes[row_i]] += 1 #update count 
 
         
 
@@ -92,20 +90,30 @@ class MDR(object):
             Constructed features from the provided feature matrix
 
         """
-        new_feature = np.zeros(shape=(features.shape[0],1))
-        for i in range(features.shape[0]):
-            feature_instance = tuple(map(tuple, features[i]))
-            if feature_instance in feature_map:
-                counts = feature_map[feature_instance]
-                if counts[0] > counts[1]:
-                    new_feature[i] = 0
-                elif counts[1] > counts[0]:
-                    new_feature[i] = 1
+        new_feature = np.zeros(shape=(features.shape[0],1), dtype=np.int)
+        for row_i in range(features.shape[0]):
+            feature_instance = tuple(map(tuple, features[row_i]))
+            counts = feature_map[feature_instance]
+
+            #accounts for missing data / truly imbalanced data
+            if counts[0]*counts[1] == 0:
+                if counts[0] == counts[1]:
+                    new_feature[row_i] = self.default_label
+                if counts[0] > 0: 
+                    new_feature[row_i] = 0 
                 else:
-                    new_feature[i] = self.tie_break
+                    new_feature[row_i] = 1
+                continue 
+
+            #if both label values have valid counts 
+            ratio = float(counts[0])/counts[1] 
+            if ratio > self.class_ratio: 
+                new_feature[row_i] = 0
+            elif ratio = self.class_ratio:
+                new_feature[row_i] = self.tie_break
             else:
-                new_feature[i] = self.default_label
-            
+                new_feature[row_i] = 1 
+
         return new_feature
 
     def fit_transform(self, features, classes):
@@ -143,10 +151,12 @@ class MDR(object):
             The estimated accuracy based on the constructed feature
 
         """
-        new_feature = self.fit_transform(features, classes)
-        results = (new_feature == classes).all()
+        if len(self.feature_map) == 0:
+            raise ValueError('fit not called properly')
+        new_feature = self.transform(features)
+        results = (new_feature == classes)
         score = np.sum(results)
-        accuracy_score = score/classes.size 
+        accuracy_score = float(score)/classes.size 
         return accuracy_score
 
 def main():
@@ -201,7 +211,7 @@ def main():
     # Run and evaluate MDR on the training and testing data
     mdr = MDR()
     mdr.fit(training_features, training_classes)
-    return mdr.score(testing_features, testing_classes)
+    print(mdr.score(testing_features, testing_classes))
 
 if __name__ == '__main__':
     main()
