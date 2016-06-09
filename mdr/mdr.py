@@ -31,9 +31,9 @@ class MDR(object):
 
         Parameters
         ----------
-        tie_break: type int (default: 0)
+        tie_break: int (default: 0)
             description: specify the default label in case there's a tie in a given set of feature values 
-        default_label: type int (default: 0)
+        default_label: int (default: 0)
             description: specify the default label in case there's no data for a given set of feature values  
 
         Returns
@@ -43,7 +43,7 @@ class MDR(object):
         """
         self.tie_break = tie_break
         self.default_label = default_label
-        self.fdict = {} 
+        self.feature_map = {} 
 
     def fit(self, features, classes):
         """Constructs the MDR feature map from the provided training data
@@ -64,12 +64,12 @@ class MDR(object):
         for i in range(features.shape[0]):
             feature_instance = tuple(map(tuple, features[i])) 
             if feature_instance not in dict: 
-                fdict[feature_instance] = np.zeros((n,), dtype=np.int) #initialize count for a new set of feature values 
+                feature_map[feature_instance] = np.zeros((n,), dtype=np.int) #initialize count for a new set of feature values 
             #assuming there are only 2 unique label values - might have to change to generalize
             if classes[i] = 0:
-                fdict[feature_instance][0] += 1
+                feature_map[feature_instance][0] += 1
             else:
-                fdict[feature_instance][1] += 1
+                feature_map[feature_instance][1] += 1
 
         
 
@@ -95,8 +95,8 @@ class MDR(object):
         new_feature = np.zeros(shape=(features.shape[0],1))
         for i in range(features.shape[0]):
             feature_instance = tuple(map(tuple, features[i]))
-            if feature_instance in fdict:
-                counts = fdict[feature_instance]
+            if feature_instance in feature_map:
+                counts = feature_map[feature_instance]
                 if counts[0] > counts[1]:
                     new_feature[i] = 0
                 elif counts[1] > counts[0]:
