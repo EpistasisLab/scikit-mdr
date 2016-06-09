@@ -18,7 +18,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pandas as pd
-
+import numpy as np 
 from __future__ import print_function
 from ._version import __version__
 
@@ -26,21 +26,24 @@ class MDR(object):
 
     """Multifactor Dimensionality Reduction (MDR) for feature construction in machine learning"""
 
-    def __init__(self):
+    def __init__(self, tie_break = 0, default_label = 0):
         """Sets up the MDR algorithm
 
         Parameters
         ----------
-        param1: type (default: 1)
-            description
-        param2: type (default: True)
-            description
+        tie_break: type int (default: 0)
+            description: specify the default label in case there's a tie in a given set of feature values 
+        default_label: type int (default: 0)
+            description: specify the default label in case there's no data for a given set of feature values  
 
         Returns
         -------
         None
 
         """
+        self.tie_break = tie_break
+        self.default_label = default_label
+        self.fdict = {} 
 
     def fit(self, features, classes):
         """Constructs the MDR feature map from the provided training data
@@ -57,6 +60,22 @@ class MDR(object):
         None
 
         """
+        n = (np.unique(classes)).size # general case 
+        for i in range(features.shape[0]):
+            feature_instance = tuple(map(tuple, features[i])) 
+            if feature_instance not in dict: 
+                fdict[feature_instance] = np.zeros((n,), dtype=np.int) #initialize count for a new set of feature values 
+            #assuming there are only 2 unique label values - might have to change to generalize
+            if classes[i] = 0:
+                fdict[feature_instance][0] += 1
+            else:
+                fdict[feature_instance][1] += 1
+
+        
+
+
+
+
         
 
     def transform(self, features):
@@ -73,7 +92,21 @@ class MDR(object):
             Constructed features from the provided feature matrix
 
         """
-        return 0
+        new_feature = np.zeros(shape=(features.shape[0],1))
+        for i in range(features.shape[0]):
+            feature_instance = tuple(map(tuple, features[i]))
+            if feature_instance in fdict:
+                counts = fdict[feature_instance]
+                if counts[0] > counts[1]:
+                    new_feature[i] = 0
+                elif counts[1] > counts[0]:
+                    new_feature[i] = 1
+                else:
+                    new_feature[i] = self.tie_break
+            else:
+                new_feature[i] = self.default_label
+            
+        return new_feature
 
     def fit_transform(self, features, classes):
         """Convenience function that fits the provided data then constructs a new feature from the provided features
@@ -110,7 +143,11 @@ class MDR(object):
             The estimated accuracy based on the constructed feature
 
         """
-        return 0.0
+        new_feature = self.fit_transform(features, classes)
+        results = (new_feature == classes).all()
+        score = np.sum(results)
+        accuracy_score = score/classes.size 
+        return accuracy_score
 
 def main():
     """Main function that is called when MDR is run on the command line"""
@@ -162,7 +199,9 @@ def main():
     testing_classes = input_data.loc[testing_indices, 'class'].values
 
     # Run and evaluate MDR on the training and testing data
-
+    mdr = MDR()
+    mdr.fit(training_features, training_classes)
+    return mdr.score(testing_features, testing_classes)
 
 if __name__ == '__main__':
     main()
