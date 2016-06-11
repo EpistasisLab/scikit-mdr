@@ -17,10 +17,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+from __future__ import print_function
 import pandas as pd
 import numpy as np 
 from collections import defaultdict
-from __future__ import print_function
 from ._version import __version__
 
 class MDR(object):
@@ -44,7 +44,7 @@ class MDR(object):
         """
         self.tie_break = tie_break
         self.default_label = default_label
-        self.class_ratio = 0 
+        self.class_fraction = 0. 
 
     def fit(self, features, classes):
         """Constructs the MDR feature map from the provided training data
@@ -61,15 +61,29 @@ class MDR(object):
         None
 
         """
-        self.class_ratio = float(sum(classes == 0))/(classes.size) #only applies to binary classification 
-        num_classes = (np.unique(classes)).size # count all the unique values of classes 
-        self.feature_map = defaultdict(lambda: np.zeros((num_classes,), dtype=np.int))
+        self.unique_labels = sorted(np.unique(classes))
+        self.class_fraction = float(sum(classes == self.unique_labels[0]))/(classes.size) #only applies to binary classification 
+        num_classes = self.unique_labels.size # count all the unique values of classes
+        
+        if num_classes != 2:
+            raise ValueError('MDR only supports binary classification')
+        self.class_count_matrix = defaultdict(lambda: np.zeros((num_classes,), dtype=np.int))
+        self.feature_map = defaultdict(lambda: self.default_label)
 
         for row_i in range(features.shape[0]):
-            feature_instance = tuple(map(tuple, features[row_i])) #convert feature vector to tuple 
-            feature_map[feature_instance][classes[row_i]] += 1 #update count 
+            feature_instance = tuple(features[row_i]) #convert feature vector to tuple 
+            self.class_count_matrix[feature_instance][classes[row_i]] += 1 #update count 
 
-        
+        for row_i in range(features.shape[0]):
+            feature_instance = tuple(features[row_i])
+            counts = self.class_count_matrix[feature_instance]
+            fraction = float(counts[0])/np.sum(counts)
+            if fraction > self.class_fraction: 
+                self.feature_map[feature_instance] = self.unique_labels[0]
+            elif fraction = self.class_fraction:
+                self.feature_map[feature_instance] = self.tie_break
+            else:
+                self.feature_map[feature_instance] = self.unique_labels[1] 
 
 
 
@@ -91,28 +105,10 @@ class MDR(object):
 
         """
         new_feature = np.zeros(shape=(features.shape[0],1), dtype=np.int)
+
         for row_i in range(features.shape[0]):
-            feature_instance = tuple(map(tuple, features[row_i]))
-            counts = feature_map[feature_instance]
-
-            #accounts for missing data / truly imbalanced data
-            if counts[0]*counts[1] == 0:
-                if counts[0] == counts[1]:
-                    new_feature[row_i] = self.default_label
-                if counts[0] > 0: 
-                    new_feature[row_i] = 0 
-                else:
-                    new_feature[row_i] = 1
-                continue 
-
-            #if both label values have valid counts 
-            ratio = float(counts[0])/counts[1] 
-            if ratio > self.class_ratio: 
-                new_feature[row_i] = 0
-            elif ratio = self.class_ratio:
-                new_feature[row_i] = self.tie_break
-            else:
-                new_feature[row_i] = 1 
+            feature_instance = tuple(features[row_i])
+            new_feature[row_i] = self.feature_map[feature_instance]
 
         return new_feature
 
