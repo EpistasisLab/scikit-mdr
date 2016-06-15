@@ -17,30 +17,34 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import pandas as pd
-
 from __future__ import print_function
+import pandas as pd
+import numpy as np 
+from collections import defaultdict
 from ._version import __version__
 
 class MDR(object):
 
     """Multifactor Dimensionality Reduction (MDR) for feature construction in machine learning"""
 
-    def __init__(self):
+    def __init__(self, tie_break = 0, default_label = 0):
         """Sets up the MDR algorithm
 
         Parameters
         ----------
-        param1: type (default: 1)
-            description
-        param2: type (default: True)
-            description
+        tie_break: int (default: 0)
+            description: specify the default label in case there's a tie in a given set of feature values 
+        default_label: int (default: 0)
+            description: specify the default label in case there's no data for a given set of feature values  
 
         Returns
         -------
         None
 
         """
+        self.tie_break = tie_break
+        self.default_label = default_label
+        self.class_fraction = 0. 
 
     def fit(self, features, classes):
         """Constructs the MDR feature map from the provided training data
@@ -57,6 +61,33 @@ class MDR(object):
         None
 
         """
+        self.unique_labels = sorted(np.unique(classes))
+        self.class_fraction = float(sum(classes == self.unique_labels[0]))/(classes.size) #only applies to binary classification 
+        num_classes = self.unique_labels.size # count all the unique values of classes
+        
+        if num_classes != 2:
+            raise ValueError('MDR only supports binary classification')
+        self.class_count_matrix = defaultdict(lambda: np.zeros((num_classes,), dtype=np.int))
+        self.feature_map = defaultdict(lambda: self.default_label)
+
+        for row_i in range(features.shape[0]):
+            feature_instance = tuple(features[row_i]) #convert feature vector to tuple 
+            self.class_count_matrix[feature_instance][classes[row_i]] += 1 #update count 
+
+        for row_i in range(features.shape[0]):
+            feature_instance = tuple(features[row_i])
+            counts = self.class_count_matrix[feature_instance]
+            fraction = float(counts[0])/np.sum(counts)
+            if fraction > self.class_fraction: 
+                self.feature_map[feature_instance] = self.unique_labels[0]
+            elif fraction = self.class_fraction:
+                self.feature_map[feature_instance] = self.tie_break
+            else:
+                self.feature_map[feature_instance] = self.unique_labels[1] 
+
+
+
+
         
 
     def transform(self, features):
@@ -73,7 +104,13 @@ class MDR(object):
             Constructed features from the provided feature matrix
 
         """
-        return 0
+        new_feature = np.zeros(shape=(features.shape[0],1), dtype=np.int)
+
+        for row_i in range(features.shape[0]):
+            feature_instance = tuple(features[row_i])
+            new_feature[row_i] = self.feature_map[feature_instance]
+
+        return new_feature
 
     def fit_transform(self, features, classes):
         """Convenience function that fits the provided data then constructs a new feature from the provided features
@@ -110,7 +147,13 @@ class MDR(object):
             The estimated accuracy based on the constructed feature
 
         """
-        return 0.0
+        if len(self.feature_map) == 0:
+            raise ValueError('fit not called properly')
+        new_feature = self.transform(features)
+        results = (new_feature == classes)
+        score = np.sum(results)
+        accuracy_score = float(score)/classes.size 
+        return accuracy_score
 
 def main():
     """Main function that is called when MDR is run on the command line"""
@@ -162,7 +205,9 @@ def main():
     testing_classes = input_data.loc[testing_indices, 'class'].values
 
     # Run and evaluate MDR on the training and testing data
-
+    mdr = MDR()
+    mdr.fit(training_features, training_classes)
+    print(mdr.score(testing_features, testing_classes))
 
 if __name__ == '__main__':
     main()
