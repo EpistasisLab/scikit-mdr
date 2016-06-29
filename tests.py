@@ -72,7 +72,7 @@ def test_fit():
 	mdr.fit(features, classes)
 
 	assert len(mdr.unique_labels) == 2
-	assert mdr.class_fraction == 1/3 
+	assert mdr.class_fraction == 1. / 3.
 	assert len(mdr.class_count_matrix) == 4
 	assert len(mdr.feature_map) == 4
 
