@@ -137,10 +137,3 @@ def test_fit_transform():
 		assert new_features[row_i] == mdr.feature_map[tuple(features[row_i])]
 	assert new_features[0] == 1
 	assert new_features[13] == 0
-
-test_init()
-test_fit()
-test_transform()
-test_fit_transform()
-
-# have not written a test for scoring method 
