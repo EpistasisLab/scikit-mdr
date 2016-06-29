@@ -63,7 +63,7 @@ class MDR(object):
         """
         self.unique_labels = sorted(np.unique(classes))
         self.class_fraction = float(sum(classes == self.unique_labels[0]))/(classes.size) #only applies to binary classification 
-        num_classes = self.unique_labels.size # count all the unique values of classes
+        num_classes = len(self.unique_labels) # count all the unique values of classes
         
         if num_classes != 2:
             raise ValueError('MDR only supports binary classification')
@@ -74,13 +74,12 @@ class MDR(object):
             feature_instance = tuple(features[row_i]) #convert feature vector to tuple 
             self.class_count_matrix[feature_instance][classes[row_i]] += 1 #update count 
 
-        for row_i in range(features.shape[0]):
-            feature_instance = tuple(features[row_i])
+        for feature_instance in self.class_count_matrix:
             counts = self.class_count_matrix[feature_instance]
             fraction = float(counts[0])/np.sum(counts)
             if fraction > self.class_fraction: 
                 self.feature_map[feature_instance] = self.unique_labels[0]
-            elif fraction = self.class_fraction:
+            elif fraction == self.class_fraction:
                 self.feature_map[feature_instance] = self.tie_break
             else:
                 self.feature_map[feature_instance] = self.unique_labels[1] 
@@ -104,7 +103,7 @@ class MDR(object):
             Constructed features from the provided feature matrix
 
         """
-        new_feature = np.zeros(shape=(features.shape[0],1), dtype=np.int)
+        new_feature = np.zeros(features.shape[0], dtype=np.int)
 
         for row_i in range(features.shape[0]):
             feature_instance = tuple(features[row_i])
@@ -131,9 +130,9 @@ class MDR(object):
         self.fit(features, classes)
         return self.transform(features)
 
-    def score(self, features, classes):
+    def score(self, features, classes, add_score = False):
         """Estimates the accuracy of the predictions from the constructed feature
-
+        #pass in another param to customize scoring metrics 
         Parameters
         ----------
         features: array-like {n_samples, n_features}
@@ -147,11 +146,14 @@ class MDR(object):
             The estimated accuracy based on the constructed feature
 
         """
+        if add_score:
+            #import some kind of scoring metric from sklearn? 
+            return 
         if len(self.feature_map) == 0:
             raise ValueError('fit not called properly')
         new_feature = self.transform(features)
         results = (new_feature == classes)
-        score = np.sum(results)
+        score = np.sum(results) 
         accuracy_score = float(score)/classes.size 
         return accuracy_score
 
