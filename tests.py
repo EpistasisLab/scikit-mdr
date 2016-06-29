@@ -11,28 +11,6 @@ import warnings
 import inspect
 from sklearn.cross_validation import train_test_split
 
-#full dataset for testing 
-# 2	0	1
-# 0	0	1
-# 0	1	1
-# 0	0	1
-# 0	0	1
-# 0	0	1
-# 0	1	1
-# 0	0	1
-# 0	0	1
-# 0	1	1
-# 0	0	0
-# 0	0	0
-# 0	0	0
-# 1	1	0
-# 1	1	0
-
-# 2 0 count: 1 label 1; maps to 1 
-# 0 0 count: 3 label 0; 6 label 1; maps to 0 *tie_break*
-# 1 1 count: 2 label 0; maps to 0 
-# 0 1 count: 3 label 1; maps to 1 
-
 def test_init():
     """Ensure that the MDR instantiator stores the MDR variables properly"""
 
@@ -49,7 +27,6 @@ def test_init():
 
 
 def test_fit():
-
 	features = np.array([   [2,	0],
 							[0,	0],
 							[0,	1],
