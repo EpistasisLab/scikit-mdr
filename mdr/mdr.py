@@ -130,7 +130,7 @@ class MDR(object):
         self.fit(features, classes)
         return self.transform(features)
 
-    def score(self, features, classes, add_score = False):
+    def score(self, features, classes, add_score = None):
         """Estimates the accuracy of the predictions from the constructed feature
         #pass in another param to customize scoring metrics 
         Parameters
@@ -146,16 +146,18 @@ class MDR(object):
             The estimated accuracy based on the constructed feature
 
         """
-        if add_score:
-            #import some kind of scoring metric from sklearn? 
-            return 
+        
         if len(self.feature_map) == 0:
             raise ValueError('fit not called properly')
+
         new_feature = self.transform(features)
-        results = (new_feature == classes)
-        score = np.sum(results) 
-        accuracy_score = float(score)/classes.size 
-        return accuracy_score
+
+        if add_score == None:
+            results = (new_feature == classes)
+            score = np.sum(results)
+            return float(score)/classes.size 
+        else:
+            return add_score(classes, new_feature) #might have to specify additional params, depending on the metrics in use
 
 def main():
     """Main function that is called when MDR is run on the command line"""
