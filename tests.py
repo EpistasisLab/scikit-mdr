@@ -9,12 +9,12 @@ import numpy as np
 import random
 import warnings
 import inspect
-from sklearn.cross_validation import train_test_split
+from sklearn.metrics import accuracy_score, zero_one_loss
 
 def test_init():
     """Ensure that the MDR instantiator stores the MDR variables properly"""
 
-    mdr_obj = MDR() #change this or create a second test 
+    mdr_obj = MDR() 
 
     assert mdr_obj.tie_break == 0
     assert mdr_obj.default_label == 0
@@ -25,8 +25,8 @@ def test_init():
     assert mdr_obj2.tie_break == 1 
     assert mdr_obj2.default_label == 2
 
-
 def test_fit():
+	"""Ensure that the MDR 'fit' method constructs the right matrix to count each class, as well as the right map from feature instances to labels"""
 	features = np.array([   [2,	0],
 							[0,	0],
 							[0,	1],
@@ -69,7 +69,13 @@ def test_fit():
 	assert mdr.feature_map[(1,1)] == 0
 	assert mdr.feature_map[(0,1)] == 1
 
+# 2 0 count: 1 label 1; maps to 1 
+# 0 0 count: 3 label 0; 6 label 1; maps to 0 *tie_break*
+# 1 1 count: 2 label 0; maps to 0 
+# 0 1 count: 3 label 1; maps to 1 
+
 def test_transform():
+	"""Ensure that the MDR 'transform' method maps a new set of feature instances to the desired labels"""
 	features = np.array([   [2,	0],
 							[0,	0],
 							[0,	1],
@@ -107,33 +113,84 @@ def test_transform():
 								[0,	0]])
 
 	new_features = mdr.transform(test_features)
-	for row_i in range(test_features.shape[0]):
-		assert new_features[row_i] == mdr.feature_map[tuple(test_features[row_i])]
-	assert new_features[0] == mdr.default_label
-	assert new_features[13] == mdr.default_label
+	assert np.array_equal(new_features, [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0])
+
+# 2 0 count: 1 label 1; maps to 1 
+# 0 0 count: 3 label 0; 6 label 1; maps to 0 *tie_break*
+# 1 1 count: 2 label 0; maps to 0 
+# 0 1 count: 3 label 1; maps to 1 
 
 def test_fit_transform():
-	features = np.array([   [2,	0],
-							[0,	0],
-							[0,	1],
-							[0,	0],
-							[0,	0],
-							[0,	0],
-							[0,	1],
-							[0,	0],
-							[0,	0],
-							[0,	1],
-							[0,	0],
-							[0,	0],
-							[0,	0],
-							[1,	1],
-							[1,	1]])
+	"""Ensure that the MDR 'fit_transform' method combines both fit and transform, and produces the right predicted labels"""
+	features = np.array([[2,0],
+						[0,	0],
+						[0,	1],
+						[0,	0],
+						[0,	0],
+						[0,	0],
+						[0,	1],
+						[0,	0],
+						[0,	0],
+						[0,	1],
+						[0,	0],
+						[0,	0],
+						[0,	0],
+						[1,	1],
+						[1,	1]])
 
 	classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 
 	mdr = MDR() 
 	new_features = mdr.fit_transform(features, classes)
-	for row_i in range(new_features.shape[0]):
-		assert new_features[row_i] == mdr.feature_map[tuple(features[row_i])]
-	assert new_features[0] == 1
-	assert new_features[13] == 0
+	assert np.array_equal(new_features, [1,0,1,0,0,0,1,0,0,1,0,0,0,0,0])
+
+def test_score():
+	"""Ensure that the MDR 'score' method outputs the right default score, as well as the right custom metric if specified"""
+	features = np.array([[2,0],
+						[0,	0],
+						[0,	1],
+						[0,	0],
+						[0,	0],
+						[0,	0],
+						[0,	1],
+						[0,	0],
+						[0,	0],
+						[0,	1],
+						[0,	0],
+						[0,	0],
+						[0,	0],
+						[1,	1],
+						[1,	1]])
+
+	classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+
+	mdr = MDR() 
+	mdr.fit(features, classes)
+	assert mdr.score(features, classes)	== 9./15
+
+def test_custom_score(): 
+	"""Ensure that the MDR 'score' method outputs the right custom score passed in from the user"""
+	features = np.array([[2,0],
+						[0,	0],
+						[0,	1],
+						[0,	0],
+						[0,	0],
+						[0,	0],
+						[0,	1],
+						[0,	0],
+						[0,	0],
+						[0,	1],
+						[0,	0],
+						[0,	0],
+						[0,	0],
+						[1,	1],
+						[1,	1]])
+
+	classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+
+	mdr = MDR() 
+	mdr.fit(features, classes)
+	assert mdr.score(features = features, classes = classes, add_score = accuracy_score) == 9./15
+	assert mdr.score(features = features, classes = classes, add_score = zero_one_loss) == 1 - 9./15	
+	#Note: have not handled the case where there are extra params to specify for custom scores. 
+
