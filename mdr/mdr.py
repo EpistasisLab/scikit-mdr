@@ -84,11 +84,6 @@ class MDR(object):
             else:
                 self.feature_map[feature_instance] = self.unique_labels[1] 
 
-
-
-
-        
-
     def transform(self, features):
         """Uses the MDR feature map to construct a new feature from the provided features
 
@@ -146,7 +141,6 @@ class MDR(object):
             The estimated accuracy based on the constructed feature
 
         """
-        
         if len(self.feature_map) == 0:
             raise ValueError('fit not called properly')
 
