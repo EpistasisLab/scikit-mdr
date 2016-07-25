@@ -190,7 +190,9 @@ def test_custom_score():
 
 	mdr = MDR() 
 	mdr.fit(features, classes)
-	assert mdr.score(features = features, classes = classes, add_score = accuracy_score) == 9./15
-	assert mdr.score(features = features, classes = classes, add_score = zero_one_loss) == 1 - 9./15	
+	assert mdr.score(features = features, classes = classes, scoring_function = accuracy_score) == 9./15
+	assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss) == 1 - 9./15
+	assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss, normalize=False) == 15 - 9
+	
 	#Note: have not handled the case where there are extra params to specify for custom scores. 
 

@@ -125,7 +125,7 @@ class MDR(object):
         self.fit(features, classes)
         return self.transform(features)
 
-    def score(self, features, classes, add_score = None):
+    def score(self, features, classes, scoring_function=None, **scoring_function_kwargs):
         """Estimates the accuracy of the predictions from the constructed feature
         #pass in another param to customize scoring metrics 
         Parameters
@@ -146,12 +146,12 @@ class MDR(object):
 
         new_feature = self.transform(features)
 
-        if add_score == None:
+        if scoring_function == None:
             results = (new_feature == classes)
             score = np.sum(results)
             return float(score)/classes.size 
         else:
-            return add_score(classes, new_feature) #might have to specify additional params, depending on the metrics in use
+            return scoring_function(classes, new_feature, **scoring_function_kwargs)
 
 def main():
     """Main function that is called when MDR is run on the command line"""
