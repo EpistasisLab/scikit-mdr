@@ -49,7 +49,7 @@ class MDR(object):
         self.tie_break = tie_break
         self.default_label = default_label
         self.class_fraction = 0.
-        self.feature_map = defaultdict(lambda: self.default_label)
+        self.feature_map = defaultdict(lambda: default_label)
 
     def fit(self, features, classes):
         """Constructs the MDR feature map from the provided training data
@@ -73,6 +73,7 @@ class MDR(object):
         if num_classes != 2:
             raise ValueError('MDR only supports binary classification')
         self.class_count_matrix = defaultdict(lambda: np.zeros((num_classes,), dtype=np.int))
+        self.feature_map = defaultdict(lambda: self.default_label)
 
         for row_i in range(features.shape[0]):
             feature_instance = tuple(features[row_i]) #convert feature vector to tuple 
