@@ -27,7 +27,7 @@ class MDR(object):
 
     """Multifactor Dimensionality Reduction (MDR) for feature construction in machine learning"""
 
-    def __init__(self, tie_break = 0, default_label = 0):
+    def __init__(self, tie_break=0, default_label=0):
         """Sets up the MDR algorithm
 
         Parameters
