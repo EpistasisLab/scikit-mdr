@@ -6,6 +6,7 @@ Unit tests for MDR
 
 from mdr import MDR 
 import numpy as np
+import unittest
 import random
 import warnings
 import inspect
@@ -190,7 +191,34 @@ def test_custom_score():
 
 	mdr = MDR() 
 	mdr.fit(features, classes)
-	assert mdr.score(features = features, classes = classes, add_score = accuracy_score) == 9./15
-	assert mdr.score(features = features, classes = classes, add_score = zero_one_loss) == 1 - 9./15	
-	#Note: have not handled the case where there are extra params to specify for custom scores. 
+	assert mdr.score(features = features, classes = classes, scoring_function = accuracy_score) == 9./15
+	assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss) == 1 - 9./15
+	assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss, normalize=False) == 15 - 9
+
+class Test_fit_raise_ValueError(unittest.TestCase):
+	def test_fit_raise_ValueError(self):
+		"""Ensure that the MDR 'fit' method raises ValueError when it is not a binary classification (temporary)"""
+		features = np.array([[2,0],
+							[0,	0],
+							[0,	1],
+							[0,	0],
+							[0,	0],
+							[0,	0],
+							[0,	1],
+							[0,	0],
+							[0,	0],
+							[0,	1],
+							[0,	0],
+							[0,	0],
+							[0,	0],
+							[1,	1],
+							[1,	1]])
+
+		classes = np.array([1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+
+		mdr = MDR()
+		#self.assertRaises(ValueError, mdr.score, features, classes)
+		self.assertRaises(ValueError, mdr.fit, features, classes)
+		classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+		self.assertRaises(ValueError, mdr.fit, features, classes)
 
