@@ -18,9 +18,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from __future__ import print_function
+from collections import defaultdict
+
 import pandas as pd
 import numpy as np 
-from collections import defaultdict
+
+from sklearn.cross_validation import train_test_split
+
 from ._version import __version__
 
 class MDR(object):
