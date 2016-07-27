@@ -7,6 +7,8 @@
 
 # MDR
 
+[![Join the chat at https://gitter.im/rhiever/scikit-mdr](https://badges.gitter.im/rhiever/scikit-mdr.svg)](https://gitter.im/rhiever/scikit-mdr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A scikit-learn-compatible Python implementation of Multifactor Dimensionality Reduction (MDR) for feature construction. **This project is still under active development** and we encourage you to check back on this repository regularly for updates.
 
 MDR is an effective feature construction algorithm that is capable of modeling epistatic interactions and capturing complex patterns in data sets.
