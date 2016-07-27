@@ -76,6 +76,7 @@ genetic_data = pd.read_csv('https://raw.githubusercontent.com/rhiever/scikit-mdr
 features = genetic_data.drop('class', axis=1).values
 labels = genetic_data['class'].values
 
+my_mdr = MDR()
 my_mdr.fit(features, labels)
 my_mdr.score(features, labels)
 >>>0.793125
