@@ -12,7 +12,7 @@ package_version = calculate_version()
 setup(
     name='scikit-MDR',
     version=package_version,
-    author='Randal S. Olson',
+    author='Randal S. Olson and Tuan Nguyen',
     author_email='rso@randalolson.com',
     packages=find_packages(),
     url='https://github.com/rhiever/scikit-mdr',

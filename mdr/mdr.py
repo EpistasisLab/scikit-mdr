@@ -18,16 +18,20 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from __future__ import print_function
+from collections import defaultdict
+
 import pandas as pd
 import numpy as np 
-from collections import defaultdict
+
+from sklearn.cross_validation import train_test_split
+
 from ._version import __version__
 
 class MDR(object):
 
     """Multifactor Dimensionality Reduction (MDR) for feature construction in machine learning"""
 
-    def __init__(self, tie_break = 0, default_label = 0):
+    def __init__(self, tie_break=0, default_label=0):
         """Sets up the MDR algorithm
 
         Parameters
@@ -42,9 +46,14 @@ class MDR(object):
         None
 
         """
+        # Save params to be recalled later by get_params()
+        self.params = locals()  # Must be placed before any local variable definitions
+        self.params.pop('self')
+
         self.tie_break = tie_break
         self.default_label = default_label
-        self.class_fraction = 0. 
+        self.class_fraction = 0.
+        self.feature_map = defaultdict(lambda: default_label)
 
     def fit(self, features, classes):
         """Constructs the MDR feature map from the provided training data
@@ -64,19 +73,19 @@ class MDR(object):
         self.unique_labels = sorted(np.unique(classes))
         self.class_fraction = float(sum(classes == self.unique_labels[0]))/(classes.size) #only applies to binary classification 
         num_classes = len(self.unique_labels) # count all the unique values of classes
-        
+
         if num_classes != 2:
             raise ValueError('MDR only supports binary classification')
         self.class_count_matrix = defaultdict(lambda: np.zeros((num_classes,), dtype=np.int))
         self.feature_map = defaultdict(lambda: self.default_label)
 
         for row_i in range(features.shape[0]):
-            feature_instance = tuple(features[row_i]) #convert feature vector to tuple 
-            self.class_count_matrix[feature_instance][classes[row_i]] += 1 #update count 
+            feature_instance = tuple(features[row_i])
+            self.class_count_matrix[feature_instance][classes[row_i]] += 1
 
         for feature_instance in self.class_count_matrix:
             counts = self.class_count_matrix[feature_instance]
-            fraction = float(counts[0])/np.sum(counts)
+            fraction = float(counts[0]) / np.sum(counts)
             if fraction > self.class_fraction: 
                 self.feature_map[feature_instance] = self.unique_labels[0]
             elif fraction == self.class_fraction:
@@ -114,7 +123,7 @@ class MDR(object):
         features: array-like {n_samples, n_features}
             Feature matrix
         classes: array-like {n_samples}
-            List of class labels for prediction
+            List of true class labels
 
         Returns
         ----------
@@ -127,13 +136,13 @@ class MDR(object):
 
     def score(self, features, classes, scoring_function=None, **scoring_function_kwargs):
         """Estimates the accuracy of the predictions from the constructed feature
-        #pass in another param to customize scoring metrics 
+
         Parameters
         ----------
         features: array-like {n_samples, n_features}
-            Feature matrix to be transformed
+            Feature matrix to predict from
         classes: array-like {n_samples}
-            List of class labels for prediction
+            List of true class labels
 
         Returns
         -------
@@ -142,16 +151,34 @@ class MDR(object):
 
         """
         if len(self.feature_map) == 0:
-            raise ValueError('fit not called properly')
+            raise ValueError('The MDR model must be fit before score() can be called')
 
         new_feature = self.transform(features)
 
-        if scoring_function == None:
+        if scoring_function is None:
             results = (new_feature == classes)
             score = np.sum(results)
-            return float(score)/classes.size 
+            return float(score) / classes.size 
         else:
             return scoring_function(classes, new_feature, **scoring_function_kwargs)
+
+    def get_params(self, deep=None):
+        """Get parameters for this estimator
+
+        This function is necessary for MDR to work as a drop-in feature constructor in,
+        e.g., sklearn.cross_validation.cross_val_score
+
+        Parameters
+        ----------
+        deep: unused
+            Only implemented to maintain interface for sklearn
+
+        Returns
+        -------
+        params: mapping of string to any
+            Parameter names mapped to their values
+        """
+        return self.params
 
 def main():
     """Main function that is called when MDR is run on the command line"""
