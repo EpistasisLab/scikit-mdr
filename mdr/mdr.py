@@ -31,12 +31,12 @@ class MDR(object):
 
     """Multifactor Dimensionality Reduction (MDR) for feature construction in machine learning"""
 
-    def __init__(self, tie_break=0, default_label=0):
+    def __init__(self, tie_break=1, default_label=0):
         """Sets up the MDR algorithm
 
         Parameters
         ----------
-        tie_break: int (default: 0)
+        tie_break: int (default: 1)
             description: specify the default label in case there's a tie in a given set of feature values 
         default_label: int (default: 0)
             description: specify the default label in case there's no data for a given set of feature values  
@@ -71,7 +71,7 @@ class MDR(object):
 
         """
         self.unique_labels = sorted(np.unique(classes))
-        self.class_fraction = float(sum(classes == self.unique_labels[0]))/(classes.size) #only applies to binary classification 
+        self.class_fraction = float(sum(classes == self.unique_labels[0])) / (classes.size) #only applies to binary classification 
         num_classes = len(self.unique_labels) # count all the unique values of classes
 
         if num_classes != 2:
