@@ -1,13 +1,13 @@
-[![Build Status](https://travis-ci.org/rhiever/scikit-mdr.svg?branch=master)](https://travis-ci.org/rhiever/scikit-mdr)
-[![Code Health](https://landscape.io/github/rhiever/scikit-mdr/master/landscape.svg?style=flat)](https://landscape.io/github/rhiever/scikit-mdr/master)
-[![Coverage Status](https://coveralls.io/repos/rhiever/scikit-mdr/badge.svg?branch=master&service=github)](https://coveralls.io/github/rhiever/scikit-mdr?branch=master)
+[![Build Status](https://travis-ci.org/EpistasisLab/scikit-mdr.svg?branch=master)](https://travis-ci.org/EpistasisLab/scikit-mdr)
+[![Code Health](https://landscape.io/github/EpistasisLab/scikit-mdr/master/landscape.svg?style=flat)](https://landscape.io/github/EpistasisLab/scikit-mdr/master)
+[![Coverage Status](https://coveralls.io/repos/EpistasisLab/scikit-mdr/badge.svg?branch=master&service=github)](https://coveralls.io/github/EpistasisLab/scikit-mdr?branch=master)
 ![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
 ![Python 3.5](https://img.shields.io/badge/python-3.5-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT%20License-blue.svg)
 
 # MDR
 
-[![Join the chat at https://gitter.im/rhiever/scikit-mdr](https://badges.gitter.im/rhiever/scikit-mdr.svg)](https://gitter.im/rhiever/scikit-mdr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/EpistasisLab/scikit-mdr](https://badges.gitter.im/EpistasisLab/scikit-mdr.svg)](https://gitter.im/EpistasisLab/scikit-mdr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 A scikit-learn-compatible Python implementation of Multifactor Dimensionality Reduction (MDR) for feature construction. **This project is still under active development** and we encourage you to check back on this repository regularly for updates.
 
@@ -17,7 +17,7 @@ MDR currently only works with categorical features and binary classification. We
 
 ## License
 
-Please see the [repository license](https://github.com/rhiever/scikit-mdr/blob/master/LICENSE) for the licensing and usage information for the MDR package.
+Please see the [repository license](https://github.com/EpistasisLab/scikit-mdr/blob/master/LICENSE) for the licensing and usage information for the MDR package.
 
 Generally, we have licensed the MDR package to make it as widely usable as possible.
 
@@ -47,7 +47,7 @@ Once the prerequisites are installed, you should be able to install MDR with a `
 pip install scikit-mdr
 ```
 
-Please [file a new issue](https://github.com/rhiever/scikit-mdr/issues/new) if you run into installation problems.
+Please [file a new issue](https://github.com/EpistasisLab/scikit-mdr/issues/new) if you run into installation problems.
 
 ## Example
 
@@ -57,7 +57,7 @@ MDR has been coded with a scikit-learn-like interface to be easy to use. The typ
 from mdr import MDR
 import pandas as pd
 
-genetic_data = pd.read_csv('https://raw.githubusercontent.com/rhiever/scikit-mdr/master/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.csv.gz', sep='\t', compression='gzip')
+genetic_data = pd.read_csv('https://raw.githubusercontent.com/EpistasisLab/scikit-mdr/master/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.csv.gz', sep='\t', compression='gzip')
 
 features = genetic_data.drop('class', axis=1).values
 labels = genetic_data['class'].values
@@ -73,7 +73,7 @@ You can also estimate the accuracy of the predictions from the constructed featu
 from mdr import MDR
 import pandas as pd
 
-genetic_data = pd.read_csv('https://raw.githubusercontent.com/rhiever/scikit-mdr/master/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.csv.gz', sep='\t', compression='gzip')
+genetic_data = pd.read_csv('https://raw.githubusercontent.com/EpistasisLab/scikit-mdr/master/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.csv.gz', sep='\t', compression='gzip')
 
 features = genetic_data.drop('class', axis=1).values
 labels = genetic_data['class'].values
@@ -86,11 +86,11 @@ my_mdr.score(features, labels)
 
 ## Contributing to MDR
 
-We welcome you to [check the existing issues](https://github.com/rhiever/scikit-mdr/issues/) for bugs or enhancements to work on. If you have an idea for an extension to the MDR package, please [file a new issue](https://github.com/rhiever/scikit-mdr/issues/new) so we can discuss it.
+We welcome you to [check the existing issues](https://github.com/EpistasisLab/scikit-mdr/issues/) for bugs or enhancements to work on. If you have an idea for an extension to the MDR package, please [file a new issue](https://github.com/EpistasisLab/scikit-mdr/issues/new) so we can discuss it.
 
 ## Having problems or have questions about MDR?
 
-Please [check the existing open and closed issues](https://github.com/rhiever/scikit-mdr/issues?utf8=%E2%9C%93&q=is%3Aissue) to see if your issue has already been attended to. If it hasn't, [file a new issue](https://github.com/rhiever/scikit-mdr/issues/new) on this repository so we can review your issue.
+Please [check the existing open and closed issues](https://github.com/EpistasisLab/scikit-mdr/issues?utf8=%E2%9C%93&q=is%3Aissue) to see if your issue has already been attended to. If it hasn't, [file a new issue](https://github.com/EpistasisLab/scikit-mdr/issues/new) on this repository so we can review your issue.
 
 ## Citing MDR
 
