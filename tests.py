@@ -17,7 +17,7 @@ def test_init():
 
     mdr_obj = MDR() 
 
-    assert mdr_obj.tie_break == 0
+    assert mdr_obj.tie_break == 1
     assert mdr_obj.default_label == 0
     assert mdr_obj.class_fraction == 0.
 
@@ -66,12 +66,12 @@ def test_fit():
 	assert mdr.class_count_matrix[(2,2)][1] == 0
 
 	assert mdr.feature_map[(2,0)] == 1
-	assert mdr.feature_map[(0,0)] == 0
+	assert mdr.feature_map[(0,0)] == 1
 	assert mdr.feature_map[(1,1)] == 0
 	assert mdr.feature_map[(0,1)] == 1
 
 # 2 0 count: 1 label 1; maps to 1 
-# 0 0 count: 3 label 0; 6 label 1; maps to 0 *tie_break*
+# 0 0 count: 3 label 0; 6 label 1; maps to 1 *tie_break*
 # 1 1 count: 2 label 0; maps to 0 
 # 0 1 count: 3 label 1; maps to 1 
 
@@ -114,10 +114,10 @@ def test_transform():
 								[0,	0]])
 
 	new_features = mdr.transform(test_features)
-	assert np.array_equal(new_features, [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0])
+	assert np.array_equal(new_features, [0,0,1,1,1,1,0,1,1,1,1,0,1,0,1])
 
 # 2 0 count: 1 label 1; maps to 1 
-# 0 0 count: 3 label 0; 6 label 1; maps to 0 *tie_break*
+# 0 0 count: 3 label 0; 6 label 1; maps to 1 *tie_break*
 # 1 1 count: 2 label 0; maps to 0 
 # 0 1 count: 3 label 1; maps to 1 
 
@@ -143,7 +143,7 @@ def test_fit_transform():
 
 	mdr = MDR() 
 	new_features = mdr.fit_transform(features, classes)
-	assert np.array_equal(new_features, [1,0,1,0,0,0,1,0,0,1,0,0,0,0,0])
+	assert np.array_equal(new_features, [1,1,1,1,1,1,1,1,1,1,1,1,1,0,0])
 
 def test_score():
 	"""Ensure that the MDR 'score' method outputs the right default score, as well as the right custom metric if specified"""
@@ -167,7 +167,7 @@ def test_score():
 
 	mdr = MDR() 
 	mdr.fit(features, classes)
-	assert mdr.score(features, classes)	== 9./15
+	assert mdr.score(features, classes)	== 12./15
 
 def test_custom_score(): 
 	"""Ensure that the MDR 'score' method outputs the right custom score passed in from the user"""
@@ -191,9 +191,9 @@ def test_custom_score():
 
 	mdr = MDR() 
 	mdr.fit(features, classes)
-	assert mdr.score(features = features, classes = classes, scoring_function = accuracy_score) == 9./15
-	assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss) == 1 - 9./15
-	assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss, normalize=False) == 15 - 9
+	assert mdr.score(features = features, classes = classes, scoring_function = accuracy_score) == 12./15
+	assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss) == 1 - 12./15
+	assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss, normalize=False) == 15 - 12
 
 class Test_fit_raise_ValueError(unittest.TestCase):
 	def test_fit_raise_ValueError(self):
