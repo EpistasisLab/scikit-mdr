@@ -21,21 +21,32 @@ from __future__ import print_function
 from collections import defaultdict
 
 import numpy as np 
+
 from sklearn.base import BaseEstimator
+from sklearn.ensemble import BaggingClassifier
+from .mdr import MDR
 
-class MDR(BaseEstimator):
+from ._version import __version__
 
-    """Multifactor Dimensionality Reduction (MDR) for feature construction in machine learning"""
+class MDREnsemble(BaseEstimator):
 
-    def __init__(self, tie_break=1, default_label=0):
-        """Sets up the MDR algorithm
+    """Bagging ensemble of Multifactor Dimensionality Reduction (MDR) models for prediction in machine learning"""
+
+    def __init__(self, n_estimators=100, tie_break=1, default_label=0, random_state=None):
+        """Sets up the MDR ensemble
 
         Parameters
         ----------
+        n_estimators: int (default: 100)
+            Number of MDR models to include in the ensemble
         tie_break: int (default: 1)
             Default label in case there's a tie in a set of feature pair values 
         default_label: int (default: 0)
             Default label in case there's no data for a set of feature pair values
+        random_state: int, RandomState instance or None (default: None)
+            If int, random_state is the seed used by the random number generator;
+            If RandomState instance, random_state is the random number generator;
+            If None, the random number generator is the RandomState instance used by np.random.
 
         Returns
         -------
@@ -46,13 +57,15 @@ class MDR(BaseEstimator):
         self.params = locals()  # Must be placed before any local variable definitions
         self.params.pop('self')
 
+        self.n_estimators = n_estimators
         self.tie_break = tie_break
         self.default_label = default_label
-        self.class_fraction = 0.
-        self.feature_map = defaultdict(lambda: default_label)
+        self.random_state = random_state
+        self.ensemble = BaggingClassifier(base_estimator=MDR(tie_break=tie_break, default_label=default_label),
+                                          n_estimators=n_estimators, random_state=random_state)
 
     def fit(self, features, classes):
-        """Constructs the MDR feature map from the provided training data
+        """Constructs the MDR ensemble from the provided training data
 
         Parameters
         ----------
@@ -66,72 +79,10 @@ class MDR(BaseEstimator):
         None
 
         """
-        self.unique_labels = sorted(np.unique(classes))
-        self.class_fraction = float(sum(classes == self.unique_labels[0])) / (classes.size) # Only applies to binary classification 
-        num_classes = len(self.unique_labels) # Count all the unique values of classes
-
-        if num_classes != 2:
-            raise ValueError('MDR only supports binary classification')
-        self.class_count_matrix = defaultdict(lambda: np.zeros((num_classes,), dtype=np.int))
-        self.feature_map = defaultdict(lambda: self.default_label)
-
-        for row_i in range(features.shape[0]):
-            feature_instance = tuple(features[row_i])
-            self.class_count_matrix[feature_instance][classes[row_i]] += 1
-
-        for feature_instance in self.class_count_matrix:
-            counts = self.class_count_matrix[feature_instance]
-            fraction = float(counts[0]) / np.sum(counts)
-            if fraction > self.class_fraction: 
-                self.feature_map[feature_instance] = self.unique_labels[0]
-            elif fraction == self.class_fraction:
-                self.feature_map[feature_instance] = self.tie_break
-            else:
-                self.feature_map[feature_instance] = self.unique_labels[1] 
-
-    def transform(self, features):
-        """Uses the MDR feature map to construct a new feature from the provided features
-
-        Parameters
-        ----------
-        features: array-like {n_samples, n_features}
-            Feature matrix to transform
-
-        Returns
-        ----------
-        array-like: {n_samples}
-            Constructed features from the provided feature matrix
-
-        """
-        new_feature = np.zeros(features.shape[0], dtype=np.int)
-
-        for row_i in range(features.shape[0]):
-            feature_instance = tuple(features[row_i])
-            new_feature[row_i] = self.feature_map[feature_instance]
-
-        return new_feature
-
-    def fit_transform(self, features, classes):
-        """Convenience function that fits the provided data then constructs a new feature from the provided features
-
-        Parameters
-        ----------
-        features: array-like {n_samples, n_features}
-            Feature matrix
-        classes: array-like {n_samples}
-            List of true class labels
-
-        Returns
-        ----------
-        array-like: {n_samples}
-            Constructed features from the provided feature matrix
-
-        """
-        self.fit(features, classes)
-        return self.transform(features)
+        self.ensemble.fit(features, classes)
 
     def predict(self, features):
-        """Uses the MDR feature map to construct a new feature from the provided features
+        """Uses the MDR ensemble to construct a new feature from the provided features
 
         Parameters
         ----------
@@ -144,13 +95,7 @@ class MDR(BaseEstimator):
             Constructed features from the provided feature matrix
 
         """
-        new_feature = np.zeros(features.shape[0], dtype=np.int)
-
-        for row_i in range(features.shape[0]):
-            feature_instance = tuple(features[row_i])
-            new_feature[row_i] = self.feature_map[feature_instance]
-
-        return new_feature
+        return self.ensemble.predict(features)
 
     def fit_predict(self, features, classes):
         """Convenience function that fits the provided data then constructs a new feature from the provided features
@@ -168,11 +113,11 @@ class MDR(BaseEstimator):
             Constructed features from the provided feature matrix
 
         """
-        self.fit(features, classes)
-        return self.predict(features)
+        self.ensemble.fit(features, classes)
+        return self.ensemble.predict(features)
 
     def score(self, features, classes, scoring_function=None, **scoring_function_kwargs):
-        """Estimates the accuracy of the predictions from the constructed feature
+        """Estimates the accuracy of the predictions from the MDR ensemble
 
         Parameters
         ----------
@@ -187,10 +132,7 @@ class MDR(BaseEstimator):
             The estimated accuracy based on the constructed feature
 
         """
-        if len(self.feature_map) == 0:
-            raise ValueError('The MDR model must be fit before score() can be called')
-
-        new_feature = self.transform(features)
+        new_feature = self.ensemble.predict(features)
 
         if scoring_function is None:
             results = (new_feature == classes)

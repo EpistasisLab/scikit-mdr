@@ -18,4 +18,5 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from ._version import __version__
-from .mdr import MDR, main
+from .mdr import MDR
+from .mdr_ensemble import MDREnsemble
