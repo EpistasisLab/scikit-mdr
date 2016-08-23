@@ -20,8 +20,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import print_function
 from collections import defaultdict
 
-import numpy as np 
+import numpy as np
+
 from sklearn.base import BaseEstimator
+from sklearn.metrics import accuracy_score
 
 class MDR(BaseEstimator):
 
@@ -42,10 +44,6 @@ class MDR(BaseEstimator):
         None
 
         """
-        # Save params to be recalled later by get_params()
-        self.params = locals()  # Must be placed before any local variable definitions
-        self.params.pop('self')
-
         self.tie_break = tie_break
         self.default_label = default_label
         self.class_fraction = 0.
@@ -193,8 +191,6 @@ class MDR(BaseEstimator):
         new_feature = self.transform(features)
 
         if scoring_function is None:
-            results = (new_feature == classes)
-            score = np.sum(results)
-            return float(score) / classes.size 
+            return accuracy_score(classes, new_feature)
         else:
             return scoring_function(classes, new_feature, **scoring_function_kwargs)

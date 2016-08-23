@@ -24,6 +24,8 @@ import numpy as np
 
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import BaggingClassifier
+from sklearn.metrics import accuracy_score
+
 from .mdr import MDR
 
 from ._version import __version__
@@ -53,10 +55,6 @@ class MDREnsemble(BaseEstimator):
         None
 
         """
-        # Save params to be recalled later by get_params()
-        self.params = locals()  # Must be placed before any local variable definitions
-        self.params.pop('self')
-
         self.n_estimators = n_estimators
         self.tie_break = tie_break
         self.default_label = default_label
@@ -135,8 +133,6 @@ class MDREnsemble(BaseEstimator):
         new_feature = self.ensemble.predict(features)
 
         if scoring_function is None:
-            results = (new_feature == classes)
-            score = np.sum(results)
-            return float(score) / classes.size 
+            return accuracy_score(classes, new_feature)
         else:
             return scoring_function(classes, new_feature, **scoring_function_kwargs)
