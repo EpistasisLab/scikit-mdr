@@ -59,6 +59,7 @@ class MDREnsemble(BaseEstimator):
         self.tie_break = tie_break
         self.default_label = default_label
         self.random_state = random_state
+        self.feature_map = defaultdict(lambda: default_label)
         self.ensemble = BaggingClassifier(base_estimator=MDR(tie_break=tie_break, default_label=default_label),
                                           n_estimators=n_estimators, random_state=random_state)
 
@@ -78,6 +79,11 @@ class MDREnsemble(BaseEstimator):
 
         """
         self.ensemble.fit(features, classes)
+
+        # Construct the feature map from the ensemble predictions
+        unique_rows = list(set([tuple(row) for row in features]))
+        for row in unique_rows:
+            self.feature_map[row] = self.ensemble.predict([row])[0]
 
     def predict(self, features):
         """Uses the MDR ensemble to construct a new feature from the provided features
