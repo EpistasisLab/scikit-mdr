@@ -134,6 +134,47 @@ class MDR(object):
         self.fit(features, classes)
         return self.transform(features)
 
+    def predict(self, features):
+        """Uses the MDR feature map to construct a new feature from the provided features
+
+        Parameters
+        ----------
+        features: array-like {n_samples, n_features}
+            Feature matrix to transform
+
+        Returns
+        ----------
+        array-like: {n_samples}
+            Constructed features from the provided feature matrix
+
+        """
+        new_feature = np.zeros(features.shape[0], dtype=np.int)
+
+        for row_i in range(features.shape[0]):
+            feature_instance = tuple(features[row_i])
+            new_feature[row_i] = self.feature_map[feature_instance]
+
+        return new_feature
+
+    def fit_predict(self, features, classes):
+        """Convenience function that fits the provided data then constructs a new feature from the provided features
+
+        Parameters
+        ----------
+        features: array-like {n_samples, n_features}
+            Feature matrix
+        classes: array-like {n_samples}
+            List of true class labels
+
+        Returns
+        ----------
+        array-like: {n_samples}
+            Constructed features from the provided feature matrix
+
+        """
+        self.fit(features, classes)
+        return self.predict(features)
+
     def score(self, features, classes, scoring_function=None, **scoring_function_kwargs):
         """Estimates the accuracy of the predictions from the constructed feature
 
@@ -179,6 +220,49 @@ class MDR(object):
             Parameter names mapped to their values
         """
         return self.params
+
+    def set_params(self, **params):
+        """Set parameters for this estimator
+
+        This function is necessary for MDR to work as a drop-in feature constructor in,
+        e.g., sklearn.cross_validation.cross_val_score
+
+        Parameters
+        ----------
+        params: dict
+            Dictionary of parameters for the estimator
+
+        Returns
+        -------
+        params: mapping of string to any
+            Parameter names mapped to their values
+        """
+        if not params:
+            # Simple optimization to gain speed (inspect is slow)
+            return self
+        valid_params = self.get_params(deep=True)
+        for key, value in params.items():
+            split = key.split('__', 1)
+            if len(split) > 1:
+                # nested objects case
+                name, sub_name = split
+                if name not in valid_params:
+                    raise ValueError('Invalid parameter %s for estimator %s. '
+                                     'Check the list of available parameters '
+                                     'with `estimator.get_params().keys()`.' %
+                                     (name, self))
+                sub_object = valid_params[name]
+                sub_object.set_params(**{sub_name: value})
+            else:
+                # simple objects case
+                if key not in valid_params:
+                    raise ValueError('Invalid parameter %s for estimator %s. '
+                                     'Check the list of available parameters '
+                                     'with `estimator.get_params().keys()`.' %
+                                     (key, self.__class__.__name__))
+                setattr(self, key, value)
+        return self
+        
 
 def main():
     """Main function that is called when MDR is run on the command line"""
