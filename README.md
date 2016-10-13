@@ -14,7 +14,7 @@ A scikit-learn-compatible Python implementation of Multifactor Dimensionality Re
 
 MDR is an effective feature construction algorithm that is capable of modeling epistatic interactions and capturing complex patterns in data sets.
 
-MDR currently only works with categorical features and binary classification. We are working on expanding the algorithm to support regression problems, as well as providing a more user-friendly interface.
+MDR currently only works with categorical features and supports both binary classification and regression problems. We are working on expanding the algorithm to provide more convenience features.
 
 ## License
 
@@ -48,7 +48,7 @@ pip install scikit-mdr
 
 Please [file a new issue](https://github.com/EpistasisLab/scikit-mdr/issues/new) if you run into installation problems.
 
-## Example
+## Examples
 
 MDR has been coded with a scikit-learn-like interface to be easy to use. The typical `fit`, `transform`, and `fit_transform` methods are available for every algorithm. For example, MDR can be used to construct a new feature composed from two existing features:
 
@@ -81,6 +81,21 @@ my_mdr = MDR()
 my_mdr.fit(features, labels)
 my_mdr.score(features, labels)
 >>>0.793125
+```
+
+If you want to use MDR for regression problems, use `ContinuousMDR`:
+
+```python
+from mdr import ContinuousMDR
+from sklearn.datasets import load_boston
+
+data = load_boston()
+features, targets = data.data, data.target
+
+my_cmdr = ContinuousMDR()
+my_cmdr.fit(features, targets)
+my_cmdr.score(features, targets)
+>>>-24.310512404173707
 ```
 
 ## Contributing to MDR
