@@ -426,7 +426,7 @@ def test_continuous_mdr_score():
 
     cmdr = ContinuousMDR() 
     cmdr.fit(features, targets)
-    assert round(cmdr.score(features, targets), 3) == -2.514
+    assert round(cmdr.score(features, targets), 3) == 2.514
 
 def test_continuous_mdr_score_raise_ValueError():
     """Ensure that the ContinuousMDR 'score' function raises ValueError when 'fit' has not already been called"""

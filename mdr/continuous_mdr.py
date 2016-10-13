@@ -189,4 +189,4 @@ class ContinuousMDR(BaseEstimator):
             else:
                 group_1_trait_values.extend(self.mdr_matrix_values[feature_instance])
 
-        return ttest_ind(group_0_trait_values, group_1_trait_values).statistic
+        return abs(ttest_ind(group_0_trait_values, group_1_trait_values).statistic)
