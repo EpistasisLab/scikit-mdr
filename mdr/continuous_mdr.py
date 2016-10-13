@@ -117,7 +117,7 @@ class ContinuousMDR(BaseEstimator):
             Constructed features from the provided feature matrix
 
         """
-        self.fit(features, classes)
+        self.fit(features, targets)
         return self.transform(features)
 
     def predict(self, features):
@@ -158,7 +158,7 @@ class ContinuousMDR(BaseEstimator):
             Constructed features from the provided feature matrix
 
         """
-        self.fit(features, classes)
+        self.fit(features, targets)
         return self.predict(features)
 
     def score(self, features, targets):
