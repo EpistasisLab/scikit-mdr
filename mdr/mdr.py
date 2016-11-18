@@ -107,7 +107,7 @@ class MDR(BaseEstimator):
             feature_instance = tuple(features[row_i])
             new_feature[row_i] = self.feature_map[feature_instance]
 
-        return new_feature
+        return new_feature.reshape(features.shape[0], 1)
 
     def fit_transform(self, features, classes):
         """Convenience function that fits the provided data then constructs a new feature from the provided features

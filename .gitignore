@@ -61,6 +61,6 @@ target/
 #Ipython Notebook
 .ipynb_checkpoints
 
-Untitled.ipynb
-
 *.gz
+
+*.ipynb
