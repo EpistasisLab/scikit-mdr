@@ -63,7 +63,13 @@ labels = genetic_data['class'].values
 
 my_mdr = MDR()
 my_mdr.fit_transform(features, labels)
->>> array([1, 0, 0, ..., 0, 0, 0])
+>>>array([[1],
+>>>       [1],
+>>>       [1],
+>>>       ..., 
+>>>       [0],
+>>>       [0],
+>>>       [0]])
 ```
 
 You can also estimate the accuracy of the predictions from the constructed feature using the `score` function:
@@ -80,7 +86,7 @@ labels = genetic_data['class'].values
 my_mdr = MDR()
 my_mdr.fit(features, labels)
 my_mdr.score(features, labels)
->>>0.793125
+>>>0.998125
 ```
 
 If you want to use MDR for regression problems, use `ContinuousMDR`:
@@ -95,7 +101,7 @@ features, targets = data.data, data.target
 my_cmdr = ContinuousMDR()
 my_cmdr.fit(features, targets)
 my_cmdr.score(features, targets)
->>>-24.310512404173707
+>>>24.310512404173707
 ```
 
 ## Contributing to MDR
