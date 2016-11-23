@@ -118,11 +118,11 @@ def test_mdr_transform():
                                 [0,    0]])
 
     new_features = mdr.transform(test_features)
-    assert np.array_equal(new_features, [0,0,1,1,1,1,0,1,1,1,1,0,1,0,1])
+    assert np.array_equal(new_features, [[0], [0], [1], [1], [1], [1], [0], [1], [1], [1], [1], [0], [1], [0], [1]])
     
     # Also test the predict function, which does the same thing
     new_features = mdr.predict(test_features)
-    assert np.array_equal(new_features, [0,0,1,1,1,1,0,1,1,1,1,0,1,0,1])
+    assert np.array_equal(new_features, [0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1])
     
 
 # 2 0 count: 1 label 1; maps to 1 
@@ -152,11 +152,11 @@ def test_mdr_fit_transform():
 
     mdr = MDR() 
     new_features = mdr.fit_transform(features, classes)
-    assert np.array_equal(new_features, [1,1,1,1,1,1,1,1,1,1,1,1,1,0,0])
+    assert np.array_equal(new_features, [[1], [1], [1], [1], [1], [1], [1], [1], [1], [1], [1], [1], [1], [0], [0]])
     
     # Also test the fit_predict function, which does the same thing
     new_features = mdr.fit_predict(features, classes)
-    assert np.array_equal(new_features, [1,1,1,1,1,1,1,1,1,1,1,1,1,0,0])
+    assert np.array_equal(new_features, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0])
 
 def test_mdr_score():
     """Ensure that the MDR 'score' function outputs the right default score, as well as the right custom metric if specified"""
