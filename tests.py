@@ -11,9 +11,6 @@ import warnings
 import inspect
 from sklearn.metrics import accuracy_score, zero_one_loss
 
-"""
-    MDR tests
-"""
 
 def test_mdr_init():
     """Ensure that the MDR instantiator stores the MDR variables properly"""
@@ -55,27 +52,19 @@ def test_mdr_fit():
     mdr = MDR() 
     mdr.fit(features, classes)
 
-    assert len(mdr.unique_labels) == 2
-    assert mdr.class_fraction == 1. / 3.
     assert len(mdr.class_count_matrix) == 4
     assert len(mdr.feature_map) == 4
 
-    assert mdr.class_count_matrix[(2, 0)][0] == 0 
     assert mdr.class_count_matrix[(2, 0)][1] == 1
-    assert mdr.class_count_matrix[(0, 0)][0] == 3 
+    assert mdr.class_count_matrix[(0, 0)][0] == 3
     assert mdr.class_count_matrix[(0, 0)][1] == 6
-    assert mdr.class_count_matrix[(1, 1)][0] == 2 
-    assert mdr.class_count_matrix[(1, 1)][1] == 0 
-    assert mdr.class_count_matrix[(0, 1)][0] == 0 
-    assert mdr.class_count_matrix[(0, 1)][1] == 3 
-    assert mdr.class_count_matrix[(2, 2)][0] == 0
-    assert mdr.class_count_matrix[(2, 2)][1] == 0
+    assert mdr.class_count_matrix[(1, 1)][0] == 2
+    assert mdr.class_count_matrix[(0, 1)][1] == 3
 
     assert mdr.feature_map[(2, 0)] == 1
     assert mdr.feature_map[(0, 0)] == 1
     assert mdr.feature_map[(1, 1)] == 0
     assert mdr.feature_map[(0, 1)] == 1
-    assert mdr.feature_map[(2, 2)] == 0
 
 # 2 0 count: 1 label 1; maps to 1 
 # 0 0 count: 3 label 0; 6 label 1; maps to 1 *tie_break*
@@ -183,7 +172,7 @@ def test_mdr_score():
 
     mdr = MDR() 
     mdr.fit(features, classes)
-    assert mdr.score(features, classes)    == 12./15
+    assert mdr.score(features, classes) == 12. / 15
 
 def test_mdr_custom_score(): 
     """Ensure that the MDR 'score' function outputs the right custom score passed in from the user"""
@@ -207,9 +196,9 @@ def test_mdr_custom_score():
 
     mdr = MDR() 
     mdr.fit(features, classes)
-    assert mdr.score(features = features, classes = classes, scoring_function = accuracy_score) == 12./15
-    assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss) == 1 - 12./15
-    assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss, normalize=False) == 15 - 12
+    assert mdr.score(features = features, class_labels = classes, scoring_function = accuracy_score) == 12. / 15
+    assert mdr.score(features = features, class_labels = classes, scoring_function = zero_one_loss) == 1 - 12. / 15
+    assert mdr.score(features = features, class_labels = classes, scoring_function = zero_one_loss, normalize=False) == 15 - 12
 
 def test_mdr_fit_raise_ValueError():
     """Ensure that the MDR 'fit' function raises ValueError when it is not a binary classification (temporary)"""
