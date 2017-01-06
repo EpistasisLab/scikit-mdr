@@ -46,7 +46,6 @@ class MDR(BaseEstimator):
         """
         self.tie_break = tie_break
         self.default_label = default_label
-        self.class_fraction = 0.
         self.class_count_matrix = None
         self.feature_map = None
 
@@ -62,33 +61,36 @@ class MDR(BaseEstimator):
 
         Returns
         -------
-        None
+        Returns the fitted MDR instance to allow function chaining
 
         """
         unique_labels = sorted(np.unique(class_labels))
-        # Only applies to binary classification
-        self.class_fraction = float(sum(class_labels == self.unique_labels[0])) / class_labels.size
-        num_classes = len(unique_labels)
-
-        if num_classes != 2:
+        if len(unique_labels) != 2:
             raise ValueError('MDR only supports binary classification')
 
-        self.class_count_matrix = defaultdict(lambda: np.zeros((num_classes,), dtype=np.int))
-        self.feature_map = defaultdict(lambda: self.default_label)
-
+        # Count the distribution of classes that fall into each MDR grid cell
+        self.class_count_matrix = defaultdict(lambda: defaultdict(int))
         for row_i in range(features.shape[0]):
             feature_instance = tuple(features[row_i])
             self.class_count_matrix[feature_instance][class_labels[row_i]] += 1
+        self.class_count_matrix = dict(self.class_count_matrix)
 
+        # Only applies to binary classification
+        overall_class_fraction = float(sum(class_labels == self.unique_labels[0])) / class_labels.size
+
+        # If one class is more abundant in a MDR grid cell than it is overall, then assign the cell to that class
+        self.feature_map = {}
         for feature_instance in self.class_count_matrix:
             counts = self.class_count_matrix[feature_instance]
-            fraction = float(counts[0]) / np.sum(counts)
-            if fraction > self.class_fraction: 
+            fraction = float(counts[class_labels[0]]) / np.sum(counts)
+            if fraction > overall_class_fraction:
                 self.feature_map[feature_instance] = unique_labels[0]
-            elif fraction == self.class_fraction:
+            elif fraction == overall_class_fraction:
                 self.feature_map[feature_instance] = self.tie_break
             else:
-                self.feature_map[feature_instance] = unique_labels[1] 
+                self.feature_map[feature_instance] = unique_labels[1]
+
+        return self
 
     def transform(self, features):
         """Uses the MDR feature map to construct a new feature from the provided features
@@ -111,7 +113,10 @@ class MDR(BaseEstimator):
 
         for row_i in range(features.shape[0]):
             feature_instance = tuple(features[row_i])
-            new_feature[row_i] = self.feature_map[feature_instance]
+            if feature_instance in self.feature_map:
+                new_feature[row_i] = self.feature_map[feature_instance]
+            else:
+                new_feature[row_i] = self.default_label
 
         return new_feature.reshape(features.shape[0], 1)
 
@@ -155,7 +160,10 @@ class MDR(BaseEstimator):
 
         for row_i in range(features.shape[0]):
             feature_instance = tuple(features[row_i])
-            new_feature[row_i] = self.feature_map[feature_instance]
+            if feature_instance in self.feature_map:
+                new_feature[row_i] = self.feature_map[feature_instance]
+            else:
+                new_feature[row_i] = self.default_label
 
         return new_feature
 
