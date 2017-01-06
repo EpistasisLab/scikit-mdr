@@ -92,53 +92,6 @@ class MDR(BaseEstimator):
 
         return self
 
-    def transform(self, features):
-        """Uses the MDR feature map to construct a new feature from the provided features
-
-        Parameters
-        ----------
-        features: array-like {n_samples, n_features}
-            Feature matrix to transform
-
-        Returns
-        ----------
-        array-like: {n_samples}
-            Constructed features from the provided feature matrix
-
-        """
-        if self.feature_map is None:
-            raise ValueError('The MDR model must be fit before transform can be called')
-
-        new_feature = np.zeros(features.shape[0], dtype=np.int)
-
-        for row_i in range(features.shape[0]):
-            feature_instance = tuple(features[row_i])
-            if feature_instance in self.feature_map:
-                new_feature[row_i] = self.feature_map[feature_instance]
-            else:
-                new_feature[row_i] = self.default_label
-
-        return new_feature.reshape(features.shape[0], 1)
-
-    def fit_transform(self, features, class_labels):
-        """Convenience function that fits the provided data then constructs a new feature from the provided features
-
-        Parameters
-        ----------
-        features: array-like {n_samples, n_features}
-            Feature matrix
-        class_labels: array-like {n_samples}
-            List of true class labels
-
-        Returns
-        ----------
-        array-like: {n_samples}
-            Constructed features from the provided feature matrix
-
-        """
-        self.fit(features, class_labels)
-        return self.transform(features)
-
     def predict(self, features):
         """Uses the MDR feature map to construct a new feature from the provided features
 
@@ -185,6 +138,41 @@ class MDR(BaseEstimator):
         """
         self.fit(features, class_labels)
         return self.predict(features)
+
+    def transform(self, features):
+        """Uses the MDR feature map to construct a new feature from the provided features
+
+        Parameters
+        ----------
+        features: array-like {n_samples, n_features}
+            Feature matrix to transform
+
+        Returns
+        ----------
+        array-like: {n_samples, 1}
+            Constructed features from the provided feature matrix
+
+        """
+        return self.predict(features).reshape(features.shape[0], 1)
+
+    def fit_transform(self, features, class_labels):
+        """Convenience function that fits the provided data then constructs a new feature from the provided features
+
+        Parameters
+        ----------
+        features: array-like {n_samples, n_features}
+            Feature matrix
+        class_labels: array-like {n_samples}
+            List of true class labels
+
+        Returns
+        ----------
+        array-like: {n_samples, 1}
+            Constructed features from the provided feature matrix
+
+        """
+        self.fit(features, class_labels)
+        return self.transform(features)
 
     def score(self, features, class_labels, scoring_function=None, **scoring_function_kwargs):
         """Estimates the accuracy of the predictions from the constructed feature
