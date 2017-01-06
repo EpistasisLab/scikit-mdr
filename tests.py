@@ -10,7 +10,9 @@ import random
 import warnings
 import inspect
 from sklearn.metrics import accuracy_score, zero_one_loss
-
+from sklearn.naive_bayes import GaussianNB
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import cross_val_score, StratifiedKFold
 
 def test_mdr_init():
     """Ensure that the MDR instantiator stores the MDR variables properly"""
@@ -265,6 +267,53 @@ def test_mdr_score_raise_ValueError():
         assert True
     else:
         assert False
+
+def test_mdr_sklearn_pipeline():
+    """Ensure that MDR can be used as a transformer in a scikit-learn pipeline"""
+    features = np.array([[2,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    0],
+                         [1,    1],
+                         [1,    1]])
+
+    classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+    clf = make_pipeline(MDR(), GaussianNB())
+    cv_scores = cross_val_score(clf, features, classes, cv=StratifiedKFold(n_splits=5, shuffle=True))
+    assert np.mean(cv_scores) > 0.
+
+def test_mdr_sklearn_pipeline_parallel():
+    """Ensure that MDR can be used as a transformer in a parallelized scikit-learn pipeline"""
+    features = np.array([[2,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    0],
+                         [1,    1],
+                         [1,    1]])
+
+    classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+    clf = make_pipeline(MDR(), GaussianNB())
+    cv_scores = cross_val_score(clf, features, classes, cv=StratifiedKFold(n_splits=5, shuffle=True), n_jobs=-1)
+    assert np.mean(cv_scores) > 0.
+
 
 """
     Continuous MDR tests
