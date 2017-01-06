@@ -82,7 +82,7 @@ class MDR(BaseEstimator):
         self.feature_map = {}
         for feature_instance in self.class_count_matrix:
             counts = self.class_count_matrix[feature_instance]
-            fraction = float(counts[class_labels[0]]) / np.sum(list(counts.values()))
+            fraction = float(counts[unique_labels[0]]) / np.sum(list(counts.values()))
             if fraction > overall_class_fraction:
                 self.feature_map[feature_instance] = unique_labels[0]
             elif fraction == overall_class_fraction:
