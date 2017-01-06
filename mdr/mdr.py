@@ -30,7 +30,7 @@ class MDR(BaseEstimator):
     """Multifactor Dimensionality Reduction (MDR) for feature construction in binary classification problems"""
 
     def __init__(self, tie_break=1, default_label=0):
-        """Sets up the MDR algorithm
+        """Sets up the MDR algorithm for binary classification
 
         Parameters
         ----------
@@ -47,6 +47,7 @@ class MDR(BaseEstimator):
         self.tie_break = tie_break
         self.default_label = default_label
         self.class_fraction = 0.
+        self.class_count_matrix = None
         self.feature_map = None
 
     def fit(self, features, class_labels):
@@ -64,13 +65,14 @@ class MDR(BaseEstimator):
         None
 
         """
-        self.feature_map = defaultdict(lambda: self.default_label)
-        self.unique_labels = sorted(np.unique(class_labels))
-        self.class_fraction = float(sum(class_labels == self.unique_labels[0])) / (class_labels.size) # Only applies to binary classification 
-        num_classes = len(self.unique_labels) # Count all the unique values of classes
+        unique_labels = sorted(np.unique(class_labels))
+        # Only applies to binary classification
+        self.class_fraction = float(sum(class_labels == self.unique_labels[0])) / class_labels.size
+        num_classes = len(unique_labels)
 
         if num_classes != 2:
             raise ValueError('MDR only supports binary classification')
+
         self.class_count_matrix = defaultdict(lambda: np.zeros((num_classes,), dtype=np.int))
         self.feature_map = defaultdict(lambda: self.default_label)
 
@@ -82,11 +84,11 @@ class MDR(BaseEstimator):
             counts = self.class_count_matrix[feature_instance]
             fraction = float(counts[0]) / np.sum(counts)
             if fraction > self.class_fraction: 
-                self.feature_map[feature_instance] = self.unique_labels[0]
+                self.feature_map[feature_instance] = unique_labels[0]
             elif fraction == self.class_fraction:
                 self.feature_map[feature_instance] = self.tie_break
             else:
-                self.feature_map[feature_instance] = self.unique_labels[1] 
+                self.feature_map[feature_instance] = unique_labels[1] 
 
     def transform(self, features):
         """Uses the MDR feature map to construct a new feature from the provided features
@@ -104,6 +106,7 @@ class MDR(BaseEstimator):
         """
         if self.feature_map is None:
             raise ValueError('The MDR model must be fit before transform can be called')
+
         new_feature = np.zeros(features.shape[0], dtype=np.int)
 
         for row_i in range(features.shape[0]):
@@ -147,6 +150,7 @@ class MDR(BaseEstimator):
         """
         if self.feature_map is None:
             raise ValueError('The MDR model must be fit before predict can be called')
+
         new_feature = np.zeros(features.shape[0], dtype=np.int)
 
         for row_i in range(features.shape[0]):
