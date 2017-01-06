@@ -57,14 +57,14 @@ class MDR(BaseEstimator):
         features: array-like {n_samples, n_features}
             Feature matrix
         class_labels: array-like {n_samples}
-            List of class labels for prediction
+            List of true class labels
 
         Returns
         -------
         None
 
         """
-        self.feature_map = defaultdict(lambda: default_label)
+        self.feature_map = defaultdict(lambda: self.default_label)
         self.unique_labels = sorted(np.unique(class_labels))
         self.class_fraction = float(sum(class_labels == self.unique_labels[0])) / (class_labels.size) # Only applies to binary classification 
         num_classes = len(self.unique_labels) # Count all the unique values of classes
