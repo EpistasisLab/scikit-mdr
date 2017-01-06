@@ -272,6 +272,8 @@ def n_way_models(mdr_instance, X, y, n=[2], feature_names=None):
 
 def plot_mdr_grid(mdr_instance):
     """Visualizes the MDR grid of a given fitted MDR instance. Only works for 2-way MDR models.
+    
+    This function is currently incomplete.
 
     Parameters
     ----------
