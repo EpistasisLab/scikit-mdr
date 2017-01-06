@@ -22,12 +22,15 @@ def test_mdr_init():
 
     assert mdr_obj.tie_break == 1
     assert mdr_obj.default_label == 0
-    assert mdr_obj.class_fraction == 0.
+    assert mdr_obj.class_count_matrix is None
+    assert mdr_obj.feature_map is None
 
     mdr_obj2 = MDR(tie_break=1, default_label=2)
 
     assert mdr_obj2.tie_break == 1 
     assert mdr_obj2.default_label == 2
+    assert mdr_obj.class_count_matrix is None
+    assert mdr_obj.feature_map is None
 
 def test_mdr_fit():
     """Ensure that the MDR 'fit' function constructs the right matrix to count each class, as well as the right map from feature instances to labels"""
