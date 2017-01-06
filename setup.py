@@ -32,7 +32,7 @@ or Twitter: https://twitter.com/randal_olson
 This project is hosted at https://github.com/EpistasisLab/scikit-mdr
 ''',
     zip_safe=True,
-    install_requires=['numpy', 'scipy', 'scikit-learn'],
+    install_requires=['numpy', 'scipy', 'scikit-learn', 'matplotlib'],
     classifiers=[
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',

@@ -10,10 +10,9 @@ import random
 import warnings
 import inspect
 from sklearn.metrics import accuracy_score, zero_one_loss
-
-"""
-    MDR tests
-"""
+from sklearn.naive_bayes import GaussianNB
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import cross_val_score, StratifiedKFold
 
 def test_mdr_init():
     """Ensure that the MDR instantiator stores the MDR variables properly"""
@@ -22,12 +21,15 @@ def test_mdr_init():
 
     assert mdr_obj.tie_break == 1
     assert mdr_obj.default_label == 0
-    assert mdr_obj.class_fraction == 0.
+    assert mdr_obj.class_count_matrix is None
+    assert mdr_obj.feature_map is None
 
     mdr_obj2 = MDR(tie_break=1, default_label=2)
 
     assert mdr_obj2.tie_break == 1 
     assert mdr_obj2.default_label == 2
+    assert mdr_obj.class_count_matrix is None
+    assert mdr_obj.feature_map is None
 
 def test_mdr_fit():
     """Ensure that the MDR 'fit' function constructs the right matrix to count each class, as well as the right map from feature instances to labels"""
@@ -52,27 +54,19 @@ def test_mdr_fit():
     mdr = MDR() 
     mdr.fit(features, classes)
 
-    assert len(mdr.unique_labels) == 2
-    assert mdr.class_fraction == 1. / 3.
     assert len(mdr.class_count_matrix) == 4
     assert len(mdr.feature_map) == 4
 
-    assert mdr.class_count_matrix[(2, 0)][0] == 0 
     assert mdr.class_count_matrix[(2, 0)][1] == 1
-    assert mdr.class_count_matrix[(0, 0)][0] == 3 
+    assert mdr.class_count_matrix[(0, 0)][0] == 3
     assert mdr.class_count_matrix[(0, 0)][1] == 6
-    assert mdr.class_count_matrix[(1, 1)][0] == 2 
-    assert mdr.class_count_matrix[(1, 1)][1] == 0 
-    assert mdr.class_count_matrix[(0, 1)][0] == 0 
-    assert mdr.class_count_matrix[(0, 1)][1] == 3 
-    assert mdr.class_count_matrix[(2, 2)][0] == 0
-    assert mdr.class_count_matrix[(2, 2)][1] == 0
+    assert mdr.class_count_matrix[(1, 1)][0] == 2
+    assert mdr.class_count_matrix[(0, 1)][1] == 3
 
     assert mdr.feature_map[(2, 0)] == 1
     assert mdr.feature_map[(0, 0)] == 1
     assert mdr.feature_map[(1, 1)] == 0
     assert mdr.feature_map[(0, 1)] == 1
-    assert mdr.feature_map[(2, 2)] == 0
 
 # 2 0 count: 1 label 1; maps to 1 
 # 0 0 count: 3 label 0; 6 label 1; maps to 1 *tie_break*
@@ -180,7 +174,7 @@ def test_mdr_score():
 
     mdr = MDR() 
     mdr.fit(features, classes)
-    assert mdr.score(features, classes)    == 12./15
+    assert mdr.score(features, classes) == 12. / 15
 
 def test_mdr_custom_score(): 
     """Ensure that the MDR 'score' function outputs the right custom score passed in from the user"""
@@ -204,9 +198,9 @@ def test_mdr_custom_score():
 
     mdr = MDR() 
     mdr.fit(features, classes)
-    assert mdr.score(features = features, classes = classes, scoring_function = accuracy_score) == 12./15
-    assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss) == 1 - 12./15
-    assert mdr.score(features = features, classes = classes, scoring_function = zero_one_loss, normalize=False) == 15 - 12
+    assert mdr.score(features = features, class_labels = classes, scoring_function = accuracy_score) == 12. / 15
+    assert mdr.score(features = features, class_labels = classes, scoring_function = zero_one_loss) == 1 - 12. / 15
+    assert mdr.score(features = features, class_labels = classes, scoring_function = zero_one_loss, normalize=False) == 15 - 12
 
 def test_mdr_fit_raise_ValueError():
     """Ensure that the MDR 'fit' function raises ValueError when it is not a binary classification (temporary)"""
@@ -273,6 +267,53 @@ def test_mdr_score_raise_ValueError():
         assert True
     else:
         assert False
+
+def test_mdr_sklearn_pipeline():
+    """Ensure that MDR can be used as a transformer in a scikit-learn pipeline"""
+    features = np.array([[2,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    0],
+                         [1,    1],
+                         [1,    1]])
+
+    classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+    clf = make_pipeline(MDR(), GaussianNB())
+    cv_scores = cross_val_score(clf, features, classes, cv=StratifiedKFold(n_splits=5, shuffle=True))
+    assert np.mean(cv_scores) > 0.
+
+def test_mdr_sklearn_pipeline_parallel():
+    """Ensure that MDR can be used as a transformer in a parallelized scikit-learn pipeline"""
+    features = np.array([[2,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    1],
+                         [0,    0],
+                         [0,    0],
+                         [0,    0],
+                         [1,    1],
+                         [1,    1]])
+
+    classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+    clf = make_pipeline(MDR(), GaussianNB())
+    cv_scores = cross_val_score(clf, features, classes, cv=StratifiedKFold(n_splits=5, shuffle=True), n_jobs=-1)
+    assert np.mean(cv_scores) > 0.
+
 
 """
     Continuous MDR tests
