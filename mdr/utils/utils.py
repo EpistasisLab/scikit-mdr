@@ -105,23 +105,23 @@ def mutual_information(X, Y, base=2):
     """
     return entropy(Y, base=base) - conditional_entropy(Y, X, base=base)
 
-def information_gain(X, Y, Z, base=2):
-    """Calculates the information gain between three variables, IG(X;Y;Z), in the given base
+def two_way_information_gain(X, Y, Z, base=2):
+    """Calculates the two-way information gain between three variables, I(X;Y;Z), in the given base
 
     IG(X;Y;Z) indicates the information gained about variable Z by the joint variable X_Y, after removing
-    the information that X and Y have about Z individually. Thus, information gain measures the synergistic
-    predictive value of variables X and Y about variable Z.
+    the information that X and Y have about Z individually. Thus, two-way information gain measures the
+    synergistic predictive value of variables X and Y about variable Z.
 
     Parameters
     ----------
     X: array-like (# samples)
-        An array of values for which to compute the information gain
+        An array of values for which to compute the 2-way information gain
     Y: array-like (# samples)
-        An array of values for which to compute the information gain
+        An array of values for which to compute the 2-way information gain
     Z: array-like (# samples)
-        An array of values for which to compute the information gain
+        An array of outcome values for which to compute the 2-way information gain
     base: integer (default: 2)
-        The base in which to calculate information gain
+        The base in which to calculate 2-way information
 
     Returns
     ----------
@@ -131,6 +131,42 @@ def information_gain(X, Y, Z, base=2):
     """
     X_Y = ['{}{}'.format(x, y) for x, y in zip(X, Y)]
     return (mutual_information(X_Y, Z, base=base) -
+            mutual_information(X, Z, base=base) -
+            mutual_information(Y, Z, base=base))
+
+def three_way_information_gain(W, X, Y, Z, base=2):
+    """Calculates the three-way information gain between three variables, I(W;X;Y;Z), in the given base
+
+    IG(W;X;Y;Z) indicates the information gained about variable Z by the joint variable W_X_Y, after removing
+    the information that W, X, and Y have about Z individually and jointly in pairs. Thus, 3-way information gain
+    measures the synergistic predictive value of variables W, X, and Y about variable Z.
+
+    Parameters
+    ----------
+    W: array-like (# samples)
+        An array of values for which to compute the 3-way information gain
+    X: array-like (# samples)
+        An array of values for which to compute the 3-way information gain
+    Y: array-like (# samples)
+        An array of values for which to compute the 3-way information gain
+    Z: array-like (# samples)
+        An array of outcome values for which to compute the 3-way information gain
+    base: integer (default: 2)
+        The base in which to calculate 3-way information
+
+    Returns
+    ----------
+    mutual_information: float
+        The information gain calculated according to the equation:
+            IG(W;X;Y;Z) = I(W,X,Y;Z) - IG(W;X;Z) - IG(W;Y;Z) - IG(X;Y;Z) - I(W;Z) - I(X;Z) - I(Y;Z)
+
+    """
+    W_X_Y = ['{}{}{}'.format(w, x, y) for w, x, y in zip(W, X, Y)]
+    return (mutual_information(W_X_Y, Z, base=base) -
+            two_way_information_gain(W, X, Z, base=base) -
+            two_way_information_gain(W, Y, Z, base=base) -
+            two_way_information_gain(X, Y, Z, base=base) -
+            mutual_information(W, Z, base=base) -
             mutual_information(X, Z, base=base) -
             mutual_information(Y, Z, base=base))
 
