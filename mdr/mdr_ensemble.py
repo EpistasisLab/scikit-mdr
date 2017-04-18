@@ -22,7 +22,7 @@ from collections import defaultdict
 
 import numpy as np 
 
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.ensemble import BaggingClassifier
 from sklearn.metrics import accuracy_score
 
@@ -30,7 +30,7 @@ from .mdr import MDR
 
 from ._version import __version__
 
-class MDREnsemble(BaseEstimator):
+class MDREnsemble(BaseEstimator, ClassifierMixin):
 
     """Bagging ensemble of Multifactor Dimensionality Reduction (MDR) models for prediction in machine learning"""
 

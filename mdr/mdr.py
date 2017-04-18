@@ -22,10 +22,10 @@ from collections import defaultdict
 
 import numpy as np
 
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import accuracy_score
 
-class MDR(BaseEstimator):
+class MDR(BaseEstimator, ClassifierMixin):
 
     """Multifactor Dimensionality Reduction (MDR) for feature construction in binary classification problems"""
 

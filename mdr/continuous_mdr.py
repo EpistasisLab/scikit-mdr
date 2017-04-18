@@ -20,10 +20,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import print_function
 from collections import defaultdict
 import numpy as np
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, RegressorMixin
 from scipy.stats import ttest_ind
 
-class ContinuousMDR(BaseEstimator):
+class ContinuousMDR(BaseEstimator, RegressorMixin):
 
     """Continuous Multifactor Dimensionality Reduction (MDR) for feature construction in regression problems"""
 
