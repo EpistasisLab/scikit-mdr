@@ -4,13 +4,13 @@ Tuan Nguyen & Randal Olson
 Unit tests for MDR
 """
 
-from mdr import MDR, ContinuousMDR
+from mdr import MDR, MDRClassifier, ContinuousMDR
 import numpy as np
 import random
 import warnings
 import inspect
 from sklearn.metrics import accuracy_score, zero_one_loss
-from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 
@@ -114,10 +114,6 @@ def test_mdr_transform():
     new_features = mdr.transform(test_features)
     assert np.array_equal(new_features, [[0], [0], [1], [1], [1], [1], [0], [1], [1], [1], [1], [0], [1], [0], [1]])
     
-    # Also test the predict function, which does the same thing
-    new_features = mdr.predict(test_features)
-    assert np.array_equal(new_features, [0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1])
-    
 
 # 2 0 count: 1 label 1; maps to 1 
 # 0 0 count: 3 label 0; 6 label 1; maps to 1 *tie_break*
@@ -147,10 +143,6 @@ def test_mdr_fit_transform():
     mdr = MDR() 
     new_features = mdr.fit_transform(features, classes)
     assert np.array_equal(new_features, [[1], [1], [1], [1], [1], [1], [1], [1], [1], [1], [1], [1], [1], [0], [0]])
-    
-    # Also test the fit_predict function, which does the same thing
-    new_features = mdr.fit_predict(features, classes)
-    assert np.array_equal(new_features, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0])
 
 def test_mdr_score():
     """Ensure that the MDR 'score' function outputs the right default score, as well as the right custom metric if specified"""
@@ -172,7 +164,7 @@ def test_mdr_score():
 
     classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 
-    mdr = MDR() 
+    mdr = MDRClassifier() 
     mdr.fit(features, classes)
     assert mdr.score(features, classes) == 12. / 15
 
@@ -196,7 +188,7 @@ def test_mdr_custom_score():
 
     classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 
-    mdr = MDR() 
+    mdr = MDRClassifier() 
     mdr.fit(features, classes)
     assert mdr.score(features = features, class_labels = classes, scoring_function = accuracy_score) == 12. / 15
     assert mdr.score(features = features, class_labels = classes, scoring_function = zero_one_loss) == 1 - 12. / 15
@@ -259,7 +251,7 @@ def test_mdr_score_raise_ValueError():
 
     classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
     
-    mdr = MDR()
+    mdr = MDRClassifier()
     
     try:
         mdr.score(features, classes)
@@ -287,7 +279,7 @@ def test_mdr_sklearn_pipeline():
                          [1,    1]])
 
     classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
-    clf = make_pipeline(MDR(), GaussianNB())
+    clf = make_pipeline(MDR(), LogisticRegression())
     cv_scores = cross_val_score(clf, features, classes, cv=StratifiedKFold(n_splits=5, shuffle=True))
     assert np.mean(cv_scores) > 0.
 
@@ -310,7 +302,7 @@ def test_mdr_sklearn_pipeline_parallel():
                          [1,    1]])
 
     classes = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
-    clf = make_pipeline(MDR(), GaussianNB())
+    clf = make_pipeline(MDR(), LogisticRegression())
     cv_scores = cross_val_score(clf, features, classes, cv=StratifiedKFold(n_splits=5, shuffle=True), n_jobs=-1)
     assert np.mean(cv_scores) > 0.
 
@@ -409,13 +401,26 @@ def test_continuous_mdr_transform():
                                 [0,    0],    
                                 [1,    0],    
                                 [0,    0]])
+    
+    expected_outputs = [[0],
+                        [0],
+                        [1],
+                        [1],
+                        [1],
+                        [1],
+                        [0],
+                        [1],
+                        [1],
+                        [1],
+                        [1],
+                        [0],
+                        [1],
+                        [0],
+                        [1]]
 
     new_features = cmdr.transform(test_features)
-    assert np.array_equal(new_features, [0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1])
-    
-    # Also test the predict function, which does the same thing
-    new_features = cmdr.predict(test_features)
-    assert np.array_equal(new_features, [0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1])
+    print(new_features)
+    assert np.array_equal(new_features, expected_outputs)
 
 def test_continuous_mdr_fit_transform():
     """Ensure that the ContinuousMDR 'fit_transform' function combines both fit and transform, and produces the right predicted labels"""
@@ -436,14 +441,25 @@ def test_continuous_mdr_fit_transform():
                          [1,    1]])
 
     targets = np.array([0.9, 0.8, 0.9, 0.85, 0.75, 0.95, 0.9, 1.0, 0.75, 0.8, 0.1, 0.2, 0.3, 0.25, 0.05])
+    expected_outputs = [[1],
+                        [1],
+                        [1],
+                        [1],
+                        [1],
+                        [1],
+                        [1],
+                        [1],
+                        [1],
+                        [1],
+                        [1],
+                        [1],
+                        [1],
+                        [0],
+                        [0]]
 
     cmdr = ContinuousMDR() 
     new_features = cmdr.fit_transform(features, targets)
-    assert np.array_equal(new_features, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0])
-    
-    # Also test the fit_predict function, which does the same thing
-    new_features = cmdr.fit_predict(features, targets)
-    assert np.array_equal(new_features, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0])
+    assert np.array_equal(new_features, expected_outputs)
 
 def test_continuous_mdr_score():
     """Ensure that the ContinuousMDR 'score' function outputs the right default score"""

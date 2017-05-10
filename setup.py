@@ -17,7 +17,7 @@ setup(
     packages=find_packages(),
     url='https://github.com/EpistasisLab/scikit-mdr',
     license='License :: OSI Approved :: MIT License',
-    description=('A sklearn-compatible Python implementation of Multifactor Dimensionality Reduction (MDR) for feature construction.'),
+    description=('Multifactor Dimensionality Reduction (MDR)'),
     long_description='''
 A sklearn-compatible Python implementation of Multifactor Dimensionality Reduction (MDR) for feature construction.
 
@@ -41,6 +41,7 @@ This project is hosted at https://github.com/EpistasisLab/scikit-mdr
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
     keywords=['bioinformatics', 'GWAS', 'feature construction', 'single nucleotide polymorphisms', 'epistasis', 'dimesionality reduction', 'scikit-learn', 'machine learning'],
 )
