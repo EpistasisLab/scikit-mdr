@@ -1,20 +1,29 @@
-[![Build Status](https://travis-ci.org/EpistasisLab/scikit-mdr.svg?branch=master)](https://travis-ci.org/EpistasisLab/scikit-mdr)
+Master status: [![Build Status](https://travis-ci.org/EpistasisLab/scikit-mdr.svg?branch=master)](https://travis-ci.org/EpistasisLab/scikit-mdr)
 [![Code Health](https://landscape.io/github/EpistasisLab/scikit-mdr/master/landscape.svg?style=flat)](https://landscape.io/github/EpistasisLab/scikit-mdr/master)
 [![Coverage Status](https://coveralls.io/repos/github/EpistasisLab/scikit-mdr/badge.svg?branch=master)](https://coveralls.io/github/EpistasisLab/scikit-mdr?branch=master)
-![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
-![Python 3.5](https://img.shields.io/badge/python-3.5-blue.svg)
-![License](https://img.shields.io/badge/license-MIT%20License-blue.svg)
-[![PyPI version](https://badge.fury.io/py/scikit-mdr.svg)](https://badge.fury.io/py/scikit-mdr)
 
-# MDR
+Development status: [![Build Status](https://travis-ci.org/EpistasisLab/scikit-mdr.svg?branch=development)](https://travis-ci.org/EpistasisLab/scikit-mdr)
+[![Code Health](https://landscape.io/github/EpistasisLab/scikit-mdr/development/landscape.svg?style=flat)](https://landscape.io/github/EpistasisLab/scikit-mdr/development)
+[![Coverage Status](https://coveralls.io/repos/github/EpistasisLab/scikit-mdr/badge.svg?branch=development)](https://coveralls.io/github/EpistasisLab/scikit-mdr?branch=development)
+
+Package information: ![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
+![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
+![License](https://img.shields.io/badge/license-MIT%20License-blue.svg)
+[![PyPI version](https://badge.fury.io/py/scikit-MDR.svg)](https://badge.fury.io/py/scikit-MDR)
 
 [![Join the chat at https://gitter.im/EpistasisLab/scikit-mdr](https://badges.gitter.im/EpistasisLab/scikit-mdr.svg)](https://gitter.im/EpistasisLab/scikit-mdr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+<p align="center">
+<img src="https://github.com/EpistasisLab/scikit-mdr/raw/development/images/mdr-logo.jpg" width=600 />
+</p>
+
+# MDR
+
 A scikit-learn-compatible Python implementation of Multifactor Dimensionality Reduction (MDR) for feature construction. **This project is still under active development** and we encourage you to check back on this repository regularly for updates.
 
-MDR is an effective feature construction algorithm that is capable of modeling epistatic interactions and capturing complex patterns in data sets.
+MDR is an effective feature construction algorithm that is capable of modeling higher-order interactions and capturing complex patterns in data sets.
 
-MDR currently only works with categorical features and supports both binary classification and regression problems. We are working on expanding the algorithm to provide more convenience features.
+MDR currently only works with categorical features and supports both binary classification and regression problems. We are working on expanding the algorithm to cover more problem types and provide more convenience features.
 
 ## License
 
@@ -32,12 +41,14 @@ MDR is built on top of the following existing Python packages:
 
 * scikit-learn
 
+* matplotlib
+
 All of the necessary Python packages can be installed via the [Anaconda Python distribution](https://www.continuum.io/downloads), which we strongly recommend that you use. We also strongly recommend that you use Python 3 over Python 2 if you're given the choice.
 
-NumPy, SciPy, and scikit-learn can be installed in Anaconda via the command:
+NumPy, SciPy, scikit-learn, and matplotlib can be installed in Anaconda via the command:
 
 ```
-conda install numpy scipy scikit-learn
+conda install numpy scipy scikit-learn matplotlib
 ```
 
 Once the prerequisites are installed, you should be able to install MDR with a `pip` command:
@@ -50,40 +61,41 @@ Please [file a new issue](https://github.com/EpistasisLab/scikit-mdr/issues/new)
 
 ## Examples
 
-MDR has been coded with a scikit-learn-like interface to be easy to use. The typical `fit`, `transform`, and `fit_transform` methods are available for every algorithm. For example, MDR can be used to construct a new feature composed from two existing features:
+MDR has been coded with a scikit-learn-like interface to be easy to use. The typical `fit`, `transform`, and `fit_transform` methods are available for every feature construction algorithm. For example, MDR can be used to construct a new feature composed from two existing features:
 
 ```python
 from mdr import MDR
 import pandas as pd
 
-genetic_data = pd.read_csv('https://raw.githubusercontent.com/EpistasisLab/scikit-mdr/master/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.csv.gz', sep='\t', compression='gzip')
+genetic_data = pd.read_csv('https://github.com/EpistasisLab/scikit-mdr/raw/development/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.tsv.gz', sep='\t', compression='gzip')
 
 features = genetic_data.drop('class', axis=1).values
 labels = genetic_data['class'].values
 
 my_mdr = MDR()
-my_mdr.fit_transform(features, labels)
+my_mdr.fit(features, labels)
+my_mdr.transform(features)
 >>>array([[1],
 >>>       [1],
 >>>       [1],
->>>       ..., 
+>>>       ...,
 >>>       [0],
 >>>       [0],
 >>>       [0]])
 ```
 
-You can also estimate the accuracy of the predictions from the constructed feature using the `score` function:
+You can also use MDR as a classifier, and evaluate the quality of the constructed feature with the `score` function:
 
 ```python
-from mdr import MDR
+from mdr import MDRClassifier
 import pandas as pd
 
-genetic_data = pd.read_csv('https://raw.githubusercontent.com/EpistasisLab/scikit-mdr/master/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.csv.gz', sep='\t', compression='gzip')
+genetic_data = pd.read_csv('https://github.com/EpistasisLab/scikit-mdr/raw/development/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.tsv.gz', sep='\t', compression='gzip')
 
 features = genetic_data.drop('class', axis=1).values
 labels = genetic_data['class'].values
 
-my_mdr = MDR()
+my_mdr = MDRClassifier()
 my_mdr.fit(features, labels)
 my_mdr.score(features, labels)
 >>>0.998125
@@ -93,15 +105,22 @@ If you want to use MDR for regression problems, use `ContinuousMDR`:
 
 ```python
 from mdr import ContinuousMDR
-from sklearn.datasets import load_boston
+import pandas as pd
 
-data = load_boston()
-features, targets = data.data, data.target
+genetic_data = pd.read_csv('https://github.com/EpistasisLab/scikit-mdr/raw/development/data/GAMETES_Epistasis_2-Way_continuous_endpoint_a_20s_1600her_0.4__maf_0.2_EDM-2_01.tsv.gz', sep='\t', compression='gzip')
+features = genetic_data[['M0P0', 'M0P1']].values
+targets = genetic_data['Class'].values
 
 my_cmdr = ContinuousMDR()
 my_cmdr.fit(features, targets)
-my_cmdr.score(features, targets)
->>>24.310512404173707
+my_cmdr.transform(features)
+>>>array([[0],
+>>>       [1],
+>>>       [1],
+>>>       ...,
+>>>       [0],
+>>>       [1],
+>>>       [1]])
 ```
 
 ## Contributing to MDR

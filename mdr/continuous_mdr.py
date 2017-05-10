@@ -20,15 +20,17 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import print_function
 from collections import defaultdict
 import numpy as np
-from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.base import BaseEstimator, TransformerMixin
 from scipy.stats import ttest_ind
 
-class ContinuousMDR(BaseEstimator, RegressorMixin):
+class ContinuousMDR(BaseEstimator, TransformerMixin):
 
-    """Continuous Multifactor Dimensionality Reduction (MDR) for feature construction in regression problems"""
+    """Continuous Multifactor Dimensionality Reduction (CMDR) for feature construction in regression problems.
+    
+    CMDR can take categorical features and continuous endpoints as input, and outputs a binary constructed feature."""
 
     def __init__(self, tie_break=1, default_label=0):
-        """Sets up the Continuous MDR algorithm
+        """Sets up the Continuous MDR algorithm for feature construction.
 
         Parameters
         ----------
@@ -48,7 +50,7 @@ class ContinuousMDR(BaseEstimator, RegressorMixin):
         self.feature_map = defaultdict(lambda: default_label)
 
     def fit(self, features, targets):
-        """Constructs the Continuous MDR feature map from the provided training data
+        """Constructs the Continuous MDR feature map from the provided training data.
 
         Parameters
         ----------
@@ -59,7 +61,7 @@ class ContinuousMDR(BaseEstimator, RegressorMixin):
 
         Returns
         -------
-        None
+        self: A copy of the fitted model
 
         """
         self.feature_map = defaultdict(lambda: self.default_label)
@@ -79,8 +81,10 @@ class ContinuousMDR(BaseEstimator, RegressorMixin):
             else:
                 self.feature_map[feature_instance] = 0
 
+        return self
+
     def transform(self, features):
-        """Uses the Continuous MDR feature map to construct a new feature from the provided features
+        """Uses the Continuous MDR feature map to construct a new feature from the provided features.
 
         Parameters
         ----------
@@ -90,7 +94,8 @@ class ContinuousMDR(BaseEstimator, RegressorMixin):
         Returns
         ----------
         array-like: {n_samples}
-            Constructed features from the provided feature matrix
+            Constructed feature from the provided feature matrix
+            The constructed feature will be a binary variable, taking the values 0 and 1
 
         """
         new_feature = np.zeros(features.shape[0], dtype=np.int)
@@ -99,10 +104,10 @@ class ContinuousMDR(BaseEstimator, RegressorMixin):
             feature_instance = tuple(features[row_i])
             new_feature[row_i] = self.feature_map[feature_instance]
 
-        return new_feature
+        return new_feature.reshape(features.shape[0], 1)
 
     def fit_transform(self, features, targets):
-        """Convenience function that fits the provided data then constructs a new feature from the provided features
+        """Convenience function that fits the provided data then constructs a new feature from the provided features.
 
         Parameters
         ----------
@@ -120,49 +125,8 @@ class ContinuousMDR(BaseEstimator, RegressorMixin):
         self.fit(features, targets)
         return self.transform(features)
 
-    def predict(self, features):
-        """Uses the Continuous MDR feature map to construct a new feature from the provided features
-
-        Parameters
-        ----------
-        features: array-like {n_samples, n_features}
-            Feature matrix to transform
-
-        Returns
-        ----------
-        array-like: {n_samples}
-            Constructed features from the provided feature matrix
-
-        """
-        new_feature = np.zeros(features.shape[0], dtype=np.int)
-
-        for row_i in range(features.shape[0]):
-            feature_instance = tuple(features[row_i])
-            new_feature[row_i] = self.feature_map[feature_instance]
-
-        return new_feature
-
-    def fit_predict(self, features, targets):
-        """Convenience function that fits the provided data then constructs a new feature from the provided features
-
-        Parameters
-        ----------
-        features: array-like {n_samples, n_features}
-            Feature matrix
-        targets: array-like {n_samples}
-            List of true target values
-
-        Returns
-        ----------
-        array-like: {n_samples}
-            Constructed features from the provided feature matrix
-
-        """
-        self.fit(features, targets)
-        return self.predict(features)
-
     def score(self, features, targets):
-        """Estimates the quality of the Continuous MDR model via a t-statistic
+        """Estimates the quality of the ContinuousMDR model using a t-statistic.
 
         Parameters
         ----------
@@ -178,7 +142,7 @@ class ContinuousMDR(BaseEstimator, RegressorMixin):
 
         """
         if len(self.feature_map) == 0:
-            raise ValueError('The Continuous MDR model must be fit before score() can be called')
+            raise ValueError('The Continuous MDR model must be fit before score() can be called.')
 
         group_0_trait_values = []
         group_1_trait_values = []

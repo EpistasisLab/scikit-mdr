@@ -33,13 +33,13 @@ conda update --yes conda
 # provided versions
 if [[ "$LATEST" == "true" ]]; then
     conda create -n testenv --yes python=$PYTHON_VERSION pip nose \
-        numpy scipy scikit-learn cython pandas matplotlib
+        numpy scipy scikit-learn cython matplotlib pandas
 else
     conda create -n testenv --yes python=$PYTHON_VERSION pip nose \
         numpy=$NUMPY_VERSION scipy=$SCIPY_VERSION \
         scikit-learn=$SKLEARN_VERSION \
-	pandas=$PANDAS_VERSION \
 	matplotlib=$MATPLOTLIB_VERSION \
+	pandas \
         cython
 fi
 
@@ -54,6 +54,5 @@ python --version
 python -c "import numpy; print('numpy %s' % numpy.__version__)"
 python -c "import scipy; print('scipy %s' % scipy.__version__)"
 python -c "import sklearn; print('sklearn %s' % sklearn.__version__)"
-python -c "import pandas; print('pandas %s' % pandas.__version__)"
 python -c "import matplotlib; print('matplotlib %s' % matplotlib.__version__)"
 python setup.py build_ext --inplace
