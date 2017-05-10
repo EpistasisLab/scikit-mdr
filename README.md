@@ -58,7 +58,7 @@ MDR has been coded with a scikit-learn-like interface to be easy to use. The typ
 from mdr import MDR
 import pandas as pd
 
-genetic_data = pd.read_csv('https://raw.githubusercontent.com/EpistasisLab/scikit-mdr/master/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.tsv.gz', sep='\t', compression='gzip')
+genetic_data = pd.read_csv('https://github.com/EpistasisLab/scikit-mdr/raw/development/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.tsv.gz', sep='\t', compression='gzip')
 
 features = genetic_data.drop('class', axis=1).values
 labels = genetic_data['class'].values
@@ -81,7 +81,7 @@ You can also use MDR as a classifier, and evaluate the quality of the constructe
 from mdr import MDRClassifier
 import pandas as pd
 
-genetic_data = pd.read_csv('https://raw.githubusercontent.com/EpistasisLab/scikit-mdr/master/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.tsv.gz', sep='\t', compression='gzip')
+genetic_data = pd.read_csv('https://github.com/EpistasisLab/scikit-mdr/raw/development/data/GAMETES_Epistasis_2-Way_20atts_0.4H_EDM-1_1.tsv.gz', sep='\t', compression='gzip')
 
 features = genetic_data.drop('class', axis=1).values
 labels = genetic_data['class'].values
@@ -98,7 +98,7 @@ If you want to use MDR for regression problems, use `ContinuousMDR`:
 from mdr import ContinuousMDR
 import pandas as pd
 
-genetic_data = pd.read_csv('https://raw.githubusercontent.com/EpistasisLab/scikit-mdr/master/data/GAMETES_Epistasis_2-Way_continuous_endpoint_a_20s_1600her_0.4__maf_0.2_EDM-2_01.tsv.gz', sep='\t', compression='gzip')
+genetic_data = pd.read_csv('https://github.com/EpistasisLab/scikit-mdr/raw/development/data/GAMETES_Epistasis_2-Way_continuous_endpoint_a_20s_1600her_0.4__maf_0.2_EDM-2_01.tsv.gz', sep='\t', compression='gzip')
 features = genetic_data[['M0P0', 'M0P1']].values
 targets = genetic_data['Class'].values
 
