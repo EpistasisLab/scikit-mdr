@@ -47,7 +47,7 @@ class ContinuousMDR(BaseEstimator, TransformerMixin):
         self.tie_break = tie_break
         self.default_label = default_label
         self.overall_mean_trait_value = 0.
-        self.feature_map = defaultdict(lambda: default_label)
+        self.feature_map = None
 
     def fit(self, features, targets):
         """Constructs the Continuous MDR feature map from the provided training data.
@@ -81,6 +81,10 @@ class ContinuousMDR(BaseEstimator, TransformerMixin):
             else:
                 self.feature_map[feature_instance] = 0
 
+        # Convert defaultdict to dict so CMDR objects can be easily pickled
+        self.feature_map = dict(self.feature_map)
+        self.mdr_matrix_values = dict(self.mdr_matrix_values)
+
         return self
 
     def transform(self, features):
@@ -102,7 +106,10 @@ class ContinuousMDR(BaseEstimator, TransformerMixin):
 
         for row_i in range(features.shape[0]):
             feature_instance = tuple(features[row_i])
-            new_feature[row_i] = self.feature_map[feature_instance]
+            if feature_instance in self.feature_map:
+                new_feature[row_i] = self.feature_map[feature_instance]
+            else:
+                new_feature[row_i] = self.default_label
 
         return new_feature.reshape(features.shape[0], 1)
 
@@ -141,7 +148,7 @@ class ContinuousMDR(BaseEstimator, TransformerMixin):
             The estimated quality of the Continuous MDR model
 
         """
-        if len(self.feature_map) == 0:
+        if self.feature_map is None:
             raise ValueError('The Continuous MDR model must be fit before score() can be called.')
 
         group_0_trait_values = []

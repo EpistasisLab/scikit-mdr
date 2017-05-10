@@ -356,13 +356,11 @@ def test_continuous_mdr_fit():
     assert cmdr.mdr_matrix_values[(0, 1)] == [0.9, 0.9, 0.8]
     assert cmdr.mdr_matrix_values[(1, 1)] == [0.25, 0.05]
     assert cmdr.mdr_matrix_values[(2, 0)] == [0.9]
-    assert cmdr.mdr_matrix_values[(2, 2)] == []
 
     assert cmdr.feature_map[(0, 0)] == 1
     assert cmdr.feature_map[(0, 1)] == 1
     assert cmdr.feature_map[(1, 1)] == 0
     assert cmdr.feature_map[(2, 0)] == 1
-    assert cmdr.feature_map[(2, 2)] == 0
 
 def test_continuous_mdr_transform():
     """Ensure that the ContinuousMDR 'transform' function maps a new set of feature instances to the desired labels"""
