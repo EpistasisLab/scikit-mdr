@@ -11,9 +11,9 @@ Package information: ![Python 2.7](https://img.shields.io/badge/python-2.7-blue.
 ![License](https://img.shields.io/badge/license-MIT%20License-blue.svg)
 [![PyPI version](https://badge.fury.io/py/scikit-MDR.svg)](https://badge.fury.io/py/scikit-MDR)
 
-# MDR
-
 [![Join the chat at https://gitter.im/EpistasisLab/scikit-mdr](https://badges.gitter.im/EpistasisLab/scikit-mdr.svg)](https://gitter.im/EpistasisLab/scikit-mdr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+# MDR
 
 A scikit-learn-compatible Python implementation of Multifactor Dimensionality Reduction (MDR) for feature construction. **This project is still under active development** and we encourage you to check back on this repository regularly for updates.
 
