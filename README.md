@@ -14,7 +14,7 @@ Package information: ![Python 2.7](https://img.shields.io/badge/python-2.7-blue.
 [![Join the chat at https://gitter.im/EpistasisLab/scikit-mdr](https://badges.gitter.im/EpistasisLab/scikit-mdr.svg)](https://gitter.im/EpistasisLab/scikit-mdr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/EpistasisLab/scikit-mdr/master/images/mdr-logo.jpg" width=600 />
+<img src="https://github.com/EpistasisLab/scikit-mdr/raw/development/images/mdr-logo.jpg" width=600 />
 </p>
 
 # MDR
