@@ -1,10 +1,15 @@
-[![Build Status](https://travis-ci.org/EpistasisLab/scikit-mdr.svg?branch=master)](https://travis-ci.org/EpistasisLab/scikit-mdr)
+Master status: [![Build Status](https://travis-ci.org/EpistasisLab/scikit-mdr.svg?branch=master)](https://travis-ci.org/EpistasisLab/scikit-mdr)
 [![Code Health](https://landscape.io/github/EpistasisLab/scikit-mdr/master/landscape.svg?style=flat)](https://landscape.io/github/EpistasisLab/scikit-mdr/master)
 [![Coverage Status](https://coveralls.io/repos/github/EpistasisLab/scikit-mdr/badge.svg?branch=master)](https://coveralls.io/github/EpistasisLab/scikit-mdr?branch=master)
-![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
+
+Development status: [![Build Status](https://travis-ci.org/EpistasisLab/scikit-mdr.svg?branch=development)](https://travis-ci.org/EpistasisLab/scikit-mdr)
+[![Code Health](https://landscape.io/github/EpistasisLab/scikit-mdr/development/landscape.svg?style=flat)](https://landscape.io/github/EpistasisLab/scikit-mdr/development)
+[![Coverage Status](https://coveralls.io/repos/github/EpistasisLab/scikit-mdr/badge.svg?branch=development)](https://coveralls.io/github/EpistasisLab/scikit-mdr?branch=development)
+
+Package information: ![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
 ![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT%20License-blue.svg)
-[![PyPI version](https://badge.fury.io/py/scikit-mdr.svg)](https://badge.fury.io/py/scikit-mdr)
+[![PyPI version](https://badge.fury.io/py/scikit-MDR.svg)](https://badge.fury.io/py/scikit-MDR)
 
 # MDR
 
