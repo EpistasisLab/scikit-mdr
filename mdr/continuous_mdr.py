@@ -107,7 +107,7 @@ class ContinuousMDR(BaseEstimator, TransformerMixin):
             The constructed feature will be a binary variable, taking the values 0 and 1
 
         """
-        new_feature = np.zeros(features.shape[0], dtype=np.int)
+        new_feature = np.zeros(features.shape[0], dtype=np.int64)
 
         for row_i in range(features.shape[0]):
             feature_instance = tuple(features[row_i])
